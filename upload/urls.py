@@ -1,4 +1,6 @@
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 
 from . import views
 
@@ -15,4 +17,4 @@ urlpatterns = [
     path('manager/<int:course_id>/byassignment/<int:ca_id>/', views.manager_assignment, name='manager_assignment'),
     path('manager/<int:course_id>/byassignment/<int:ca_id>/score/<int:assignment_id>/', views.score_by_assignment, name='score_by_assignment'),
     path('manager/<int:course_id>/byassignment/<int:student_id>/download/<int:assignment_id>/', views.download, name='download'),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

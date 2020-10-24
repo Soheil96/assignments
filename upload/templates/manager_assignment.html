@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>{{ course.name }} - {{ CA.name }}</title>
+		<link rel="stylesheet" type="text/css" href="{% static 'fontawesome-free-5.15.1-web/css/all.css' %}">
+		<link rel="stylesheet" type="text/css" href="{% static 'bootstrap.min.css' %}">
+		<link rel="stylesheet" type="text/css" href="{% static 'app.css' %}">
+	</head>
+	<body>
+		<a href="{% url 'manager_index' %}">
+			<i class="fas fa-home" style="color: yellow; font-size: 40px; padding-top: 20px; padding-left: 30px"></i>
+		</a>
+		<a href="{% url 'manager_by_assignment' course_id=course.ID %}">
+			<i class="fas fa-arrow-left" style="color: yellow; font-size: 40px; padding-top: 20px; padding-left: 20px"></i>
+		</a>
+		<div class="container mt-5">
+			<div class="row">
+				<div class="col-md-2"></div>
+				<div class="col-md-8">
+					<div class="pricing-card p-4 text-center py-3">
+						<table border="1" style="width: 100%">
+							{% for assignment in assignments %}
+									<td><a href="score/{{ assignment.id }}">
+										<input type="submit" value="ثبت نمره جدید" style="background-color: #c69500">
+									</a></td>
+									<td width="10%">
+										{% if assignment.score %}
+											{{ assignment.score }}
+										{% else %}
+											?
+										{% endif %}
+									</td>
+									<td width="10%">
+										<a href="download/{{ assignment.id }}" target="_blank">
+											<button class="btn-icon" style="border: 0px">
+												<i class="fas fa-file-pdf" style="color: #bd2130; font-size: 25px"></i>
+											</button>
+										</a>
+									</td>
+									<td>{{ assignment.uploadDate }}</td>
+									<td>{{ assignment.student.lastName }}</td>
+									<td>{{ assignment.student.firstName }}</td>
+									<td>{{ assignment.student.ID }}</td>
+									<td>
+										{% if assignment.last_upload %}
+											<i class="fas fa-check-circle" style="color: green"></i>
+										{% endif %}
+									</td>
+								</tr>
+							{% endfor %}
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+
+{% block javascripts %}
+	<script src="{% static 'jquery.min.js' %}"></script>
+	<script src="{% static 'bootstrap.min.js' %}"></script>
+{% endblock javascripts %}

@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		{% if assignment %}
+			<title>Success!</title>
+		{% else %}
+			<title>Failed!</title>
+		{% endif %}
+		<link rel="stylesheet" type="text/css" href="{% static 'fontawesome-free-5.15.1-web/css/all.css' %}">
+		<link rel="stylesheet" type="text/css" href="{% static 'bootstrap.min.css' %}">
+		<link rel="stylesheet" type="text/css" href="{% static 'app.css' %}">
+	</head>
+	<br><br><br>
+	<body>
+		{% if assignment %}
+			<h3 style="color:white; text-align: center"> با موفقیت در سرور بارگذاری شد {{ assignment.uploadDate }} فایل شما در تاریخ </h3>
+		{% else %}
+			<h3 style="color:white; text-align: center;"> بارگذاری فایل ناموفق بود </h3>
+			<h6 style="background-color:tomato;"> {{ error }} </h6>
+		{% endif %}
+	</body>
+</html>
+
+{% block javascripts %}
+	<script src="{% static 'jquery.min.js' %}"></script>
+	<script src="{% static 'bootstrap.min.js' %}"></script>
+{% endblock javascripts %}

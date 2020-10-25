@@ -1,3 +1,5 @@
 media/uploaded_files/
 .idea/
 assignments/settings.py
+static/
+**/__pycache__/

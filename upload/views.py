@@ -1,14 +1,25 @@
 import os
+import pandas as pd
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ValidationError
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404, redirect
 
 from assignments import settings
 from .models import Course, Assignment, Student, CourseAssignments
 from .form import AssignmentForm
+
+
+@login_required()
+def add_students(request, course_id):
+    course = get_object_or_404(Course, pk=course_id)
+    xlsx_file = pd.read_excel(os.path.join(settings.MEDIA_ROOT, 'students.xlsx'), sheet_name=None)['Sheet1']
+
+    for row in xlsx_file.iterrows():
+        student = Student(course=course, student_id=row[1][0], firstName=row[1][1], lastName=row[1][2])
+        student.save()
+    return HttpResponse('دانشجو ها به درس اضافه شدند')
 
 
 def index(request):

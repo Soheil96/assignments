@@ -93,6 +93,32 @@ def manager_index(request):
 
 
 @login_required()
+def manager_scores(request, course_id):
+    course = get_object_or_404(Course, pk=course_id)
+    students = Student.objects.filter(course=course)
+    CAs = CourseAssignments.objects.filter(course=course)
+    scores = {}
+    for student in students:
+        assignments = Assignment.objects.filter(student=student)
+        student_scores = {}
+        for CA in CAs:
+            assignments_by_CA = assignments.filter(assignment=CA)
+            if assignments_by_CA:
+                score = -1
+                for assignment in assignments_by_CA:
+                    if assignment.score:
+                        score = max(score, assignment.score)
+                if score == -1:
+                    student_scores[CA] = '?'
+                else:
+                    student_scores[CA] = score.__str__()
+            else:
+                student_scores[CA] = '-'
+        scores[student] = student_scores
+    return render(request, 'manager_scores.html', {'students': students, 'CAs': CAs, 'scores': scores})
+
+
+@login_required()
 def manager_by_student(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     students = Student.objects.filter(course=course)

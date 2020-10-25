@@ -1,5 +1,8 @@
 import os
+import time
+import datetime
 import pandas as pd
+import pytz
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -15,11 +18,27 @@ from .form import AssignmentForm
 def add_students(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     xlsx_file = pd.read_excel(os.path.join(settings.MEDIA_ROOT, 'students.xlsx'), sheet_name=None)['Sheet1']
-
     for row in xlsx_file.iterrows():
         student = Student(course=course, student_id=row[1][0], firstName=row[1][1], lastName=row[1][2])
         student.save()
     return HttpResponse('دانشجو ها به درس اضافه شدند')
+
+
+@login_required()
+def cleanup(request, checksum):
+    if checksum != 'backupisonmycomputer':
+        raise Http404
+    assignments = Assignment.objects.all()
+    to_keep = []
+    for assignment in assignments:
+        diff = datetime.datetime.utcnow().replace(tzinfo=pytz.utc) - assignment.uploadDate
+        if diff.total_seconds() < 900:
+            to_keep.append(assignment.file)
+    for file in os.listdir(os.path.join(settings.MEDIA_ROOT, 'uploaded_files/')):
+        file = 'uploaded_files/' + file
+        if file not in to_keep and time.time() - os.path.getmtime(os.path.join(settings.MEDIA_ROOT, file)) > 900:
+            os.remove(os.path.join(settings.MEDIA_ROOT, file))
+    return HttpResponse('فایل ها پاک شدند')
 
 
 def index(request):
@@ -138,3 +157,31 @@ def score_by_assignment(request, course_id, ca_id, assignment_id):
         return redirect('manager_assignment', course_id=course_id, ca_id=ca_id)
     assignment = get_object_or_404(Assignment, pk=assignment_id)
     return render(request, 'score.html', {'student': assignment.student})
+
+
+@login_required()
+def add_assignment(request, course_id):
+    course = get_object_or_404(Course, pk=course_id)
+    if request.method == 'POST':
+        assignment = CourseAssignments(course=course, name=request.POST['name'])
+        assignment.save()
+        return redirect('manager_by_assignment', course_id=course_id)
+    return render(request, 'add_assignment.html', {'course': course})
+
+
+@login_required()
+def change_assignment_status(request, course_id, ca_id):
+    CA = get_object_or_404(CourseAssignments, pk=ca_id)
+    if CA.deadline == 'active':
+        CA.deadline = 'passed'
+    else:
+        CA.deadline = 'active'
+    CA.save()
+    return redirect('manager_assignment', course_id=course_id, ca_id=ca_id)
+
+
+@login_required()
+def delete_assignment(request, course_id, ca_id):
+    CA = get_object_or_404(CourseAssignments, pk=ca_id)
+    CA.delete()
+    return redirect('manager_by_assignment', course_id=course_id)

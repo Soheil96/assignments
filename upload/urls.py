@@ -6,6 +6,7 @@ from . import views
 
 urlpatterns = [
     path('students/add/<int:course_id>/', views.add_students, name='add_students'),
+    path('cleanup/<str:checksum>/', views.cleanup, name='cleanup'),
     path('', views.index, name='index'),
     path('<int:course_id>/', views.course, name='course'),
     path('accounts/login/', views.login_page, name='login'),
@@ -18,4 +19,7 @@ urlpatterns = [
     path('manager/<int:course_id>/byassignment/<int:ca_id>/', views.manager_assignment, name='manager_assignment'),
     path('manager/<int:course_id>/byassignment/<int:ca_id>/score/<int:assignment_id>/', views.score_by_assignment, name='score_by_assignment'),
     path('manager/<int:course_id>/byassignment/<int:student_id>/download/<int:assignment_id>/', views.download, name='download'),
+    path('manager/<int:course_id>/byassignment/add/', views.add_assignment, name='add_assignment'),
+    path('manager/<int:course_id>/byassignment/<int:ca_id>/change/', views.change_assignment_status, name='change_assignment_status'),
+    path('manager/<int:course_id>/byassignment/<int:ca_id>/delete/', views.delete_assignment, name='delete_assignment'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

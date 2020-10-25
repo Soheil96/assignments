@@ -3,3 +3,4 @@ media/uploaded_files/
 assignments/settings.py
 static/
 **/__pycache__/
+db.sqlite3

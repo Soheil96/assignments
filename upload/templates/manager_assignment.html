@@ -55,6 +55,19 @@
 				</div>
 			</div>
 		</div>
+		<div style="position: fixed; left: 0; bottom: 0; width: 100%; color: white; text-align: right;">
+			<a href="{% url 'change_assignment_status' course_id=course.ID ca_id=CA.id %}">
+				{% if CA.deadline == 'active' %}
+					<i class="fas fa-lightbulb" style="color: #10ee10; font-size: 40px; padding-bottom: 30px"></i>
+				{% else %}
+					<i class="fas fa-lightbulb" style="color: #e02e10; font-size: 40px; padding-bottom: 30px"></i>
+				{% endif %}
+			</a>
+			<i class="fas fa-notting" style="color: yellow; font-size: 40px; padding-right: 30px; padding-bottom: 30px"></i>
+			<a href="{% url 'delete_assignment' course_id=course.ID ca_id=CA.id %}" onclick="return confirm('آیا مطمئن هستید که این تمرین و تمام فایل های آپلود شده برای این تمرین پاک شود؟')">
+				<i class="fas fa-trash-alt" style="color: yellow; font-size: 40px; padding-right: 30px; padding-bottom: 20px"></i>
+			</a>
+		</div>
 	</body>
 </html>
 

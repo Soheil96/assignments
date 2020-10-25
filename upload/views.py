@@ -28,17 +28,19 @@ def add_students(request, course_id):
 def cleanup(request, checksum):
     if checksum != 'backupisonmycomputer':
         raise Http404
-    assignments = Assignment.objects.all()
-    to_keep = []
-    for assignment in assignments:
-        diff = datetime.datetime.utcnow().replace(tzinfo=pytz.utc) - assignment.uploadDate
-        if diff.total_seconds() < 900:
-            to_keep.append(assignment.file)
-    for file in os.listdir(os.path.join(settings.MEDIA_ROOT, 'uploaded_files/')):
-        file = 'uploaded_files/' + file
-        if file not in to_keep and time.time() - os.path.getmtime(os.path.join(settings.MEDIA_ROOT, file)) > 900:
-            os.remove(os.path.join(settings.MEDIA_ROOT, file))
-    return HttpResponse('فایل ها پاک شدند')
+    if request.method == 'POST':
+        assignments = Assignment.objects.all()
+        to_keep = []
+        for assignment in assignments:
+            diff = datetime.datetime.utcnow().replace(tzinfo=pytz.utc) - assignment.uploadDate
+            if diff.total_seconds() < 900:
+                to_keep.append(assignment.file)
+        for file in os.listdir(os.path.join(settings.MEDIA_ROOT, 'uploaded_files/')):
+            file = 'uploaded_files/' + file
+            if file not in to_keep and time.time() - os.path.getmtime(os.path.join(settings.MEDIA_ROOT, file)) > 900:
+                os.remove(os.path.join(settings.MEDIA_ROOT, file))
+        return HttpResponse('فایل ها پاک شدند')
+    return render(request, 'delete.html')
 
 
 def index(request):

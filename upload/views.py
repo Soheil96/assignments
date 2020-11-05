@@ -106,7 +106,7 @@ def manager_scores(request, course_id):
             if assignments_by_CA:
                 score = -1
                 for assignment in assignments_by_CA:
-                    if assignment.score:
+                    if assignment.score is not None:
                         score = max(score, assignment.score)
                 if score == -1:
                     student_scores[CA] = '?'

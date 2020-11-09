@@ -3,6 +3,9 @@ import time
 import datetime
 import pandas as pd
 import pytz
+import requests
+import json
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -12,6 +15,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from assignments import settings
 from .models import Course, Assignment, Student, CourseAssignments
 from .form import AssignmentForm
+
+WEBSITE_URL = 'http://iaumath.pythonanywhere.com/'
 
 
 @login_required()
@@ -41,6 +46,59 @@ def cleanup(request, checksum):
                 os.remove(os.path.join(settings.MEDIA_ROOT, file))
         return HttpResponse('فایل ها پاک شدند')
     return render(request, 'delete.html')
+
+
+@csrf_exempt
+def download_data(request, checksum):
+    if checksum != 'hijackdatabase':
+        raise Http404
+    if request.method == 'GET':
+        res = requests.post(WEBSITE_URL + 'data/download/hijackdatabase/', data={'passcode': 'riskisonmyown!', 'security': 'verylow'})
+        if res.status_code != 200:
+            return HttpResponse('آپدیت دیتابیس با مشکل مواجه شد')
+        open(os.path.join(settings.BASE_DIR, 'db.sqlite3'), 'wb').write(res.content)
+        assignments = Assignment.objects.all()
+        for assignment in assignments:
+            file_path = os.path.join(settings.MEDIA_ROOT, str(assignment.file))
+            if not os.path.exists(file_path):
+                res = requests.get(WEBSITE_URL+'manager/'+str(assignment.assignment.course.ID)+'/bystudent/'+
+                                   str(assignment.student.student_id)+'/download/'+str(assignment.id)+'/pdf/')
+                if res.status_code == 200:
+                    open(file_path, 'wb').write(res.content)
+    else:
+        if request.POST['passcode'] == 'riskisonmyown!' and request.POST['security'] == 'verylow':
+            file_path = os.path.join(settings.BASE_DIR, 'db.sqlite3')
+            if os.path.exists(file_path):
+                with open(file_path, 'rb') as fh:
+                    response = HttpResponse(fh.read(), content_type='application/liquid')
+                    response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
+                    return response
+    return redirect(manager_index)
+
+
+@csrf_exempt
+def update(request, checksum):
+    if checksum != 'syncingscores':
+        raise Http404
+    if request.method == 'POST':
+        scores = json.load(request)
+        for assignment_id in scores.keys():
+            if Assignment.objects.filter(id=assignment_id).count() > 0:
+                assignment = get_object_or_404(Assignment, id=assignment_id)
+                assignment.score = scores[assignment_id]
+                assignment.save()
+        return HttpResponse('نمرات بروزرسانی شدند')
+    else:
+        assignments = Assignment.objects.all()
+        scores = {}
+        for assignment in assignments:
+            if assignment.score is not None:
+                scores[assignment.id] = assignment.score
+        res = requests.post(WEBSITE_URL + 'data/update/syncingscores/', json=scores)
+        if res.status_code == 200:
+            return redirect(download_data, checksum='hijackdatabase')
+        else:
+            return HttpResponse('بروز رسانی نمرات با مشکل مواجه شد')
 
 
 def index(request):
@@ -89,7 +147,7 @@ def login_page(request):
 @login_required()
 def manager_index(request):
     courses = Course.objects.all()
-    return render(request, 'manager_index.html', {'courses': courses})
+    return render(request, 'manager_index.html', {'courses': courses, 'host': request.get_host()})
 
 
 @login_required()
@@ -133,10 +191,10 @@ def manager_student(request, course_id, student_id):
     return render(request, 'manager_student.html', {'student': student, 'assignments': assignments, 'course': course})
 
 
-@login_required()
-def download(request, course_id, student_id, assignment_id):
+def download(request, course_id, student_id, assignment_id, checksum):
+    if checksum != 'pdf':
+        raise Http404
     assignment = get_object_or_404(Assignment, pk=assignment_id)
-    print(assignment.file)
     file_path = os.path.join(settings.MEDIA_ROOT, str(assignment.file))
     if os.path.exists(file_path):
         with open(file_path, 'rb') as fh:

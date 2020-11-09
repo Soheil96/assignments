@@ -9,6 +9,15 @@
 		<link rel="stylesheet" type="text/css" href="{% static 'app.css' %}">
 	</head>
 	<body>
+		{% if host == '127.0.0.1:8000' %}
+			<div style="position: fixed; right: 0; top: 0; text-align: right;">
+				<a href="{% url 'update' checksum='syncingscores' %}" onclick="return confirm('دانلود کردن فایل تمارین ممکن است مدتی طول بکشد')">
+					<i class="fas fa-sync" style="color: yellow; font-size: 50px; padding-right: 50px; padding-top: 30px"></i>
+					<br>
+					<span style="color: #ffdf7e; padding-right: 30px; font-size: 25px; ">بروز رسانی</span>
+				</a>
+			</div>
+		{% endif %}
 		{% if courses %}
 			<div class="container mt-5">
 				<div class="row">

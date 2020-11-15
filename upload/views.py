@@ -112,6 +112,8 @@ def course(request, course_id):
         std_id = request.POST['std_id']
         form = AssignmentForm(course, request.POST, request.FILES)
         student = Student.objects.filter(course=course, student_id=std_id)
+        if '.pdf' not in request.FILES['file'].__str__().lower():
+            form.errors[' '] = "باشند pdf فایل آپلود شده باید به فرمت"
         if not student:
             form.errors[''] = 'شماره دانشجویی وارد شده، در این کلاس ثبت نام نمی باشد'
         if form.is_valid():
@@ -180,7 +182,25 @@ def manager_scores(request, course_id):
 def manager_by_student(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     students = Student.objects.filter(course=course)
-    return render(request, 'manager_by_student.html', {'students': students, 'course': course})
+    return render(request, 'manager_by_student.html', {'students': students, 'course': course, 'host': request.get_host()})
+
+
+@login_required()
+def add_student(request, course_id):
+    course = get_object_or_404(Course, pk=course_id)
+    if request.method == 'POST':
+        old_student = Student.objects.filter(student_id=request.POST['std_id'], course=course)
+        if old_student.__len__() > 0:
+            messages.error(request, 'این شماره دانشجویی در این کلاس می باشد')
+        else:
+            student = Student()
+            student.course = course
+            student.student_id = request.POST['std_id']
+            student.firstName = request.POST['f_name']
+            student.lastName = request.POST['l_name']
+            student.save()
+            messages.error(request, 'دانشجو به کلاس اضافه شد')
+    return render(request, 'add_student.html', {'course': course})
 
 
 @login_required()

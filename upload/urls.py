@@ -15,6 +15,7 @@ urlpatterns = [
     path('manager/', views.manager_index, name='manager_index'),
     path('manager/<int:course_id>/scores/', views.manager_scores, name='manager_scores'),
     path('manager/<int:course_id>/bystudent/', views.manager_by_student, name='manager_by_student'),
+    path('manager/<int:course_id>/bystudent/add/', views.add_student, name='add_student'),
     path('manager/<int:course_id>/bystudent/<int:student_id>/', views.manager_student, name='manager_student'),
     path('manager/<int:course_id>/bystudent/<int:student_id>/download/<int:assignment_id>/<str:checksum>/', views.download, name='download'),
     path('manager/<int:course_id>/bystudent/<int:student_id>/score/<int:assignment_id>/', views.score_by_student, name='score_by_student'),

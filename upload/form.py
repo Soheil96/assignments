@@ -32,5 +32,5 @@ class AssignmentForm(forms.ModelForm):
         file = data.get('file')
         filetype = magic.from_buffer(file.read(), mime=True)
         if "application/pdf" not in filetype:
-            raise ValidationError("باشند pdf فایل های آپلود شده باید به فرمت")
+            raise ValidationError("باشند pdf فایل آپلود شده باید به فرمت")
         return data

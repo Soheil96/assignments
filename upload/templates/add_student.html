@@ -9,6 +9,12 @@
 		<link rel="stylesheet" type="text/css" href="{% static 'app.css' %}">
 	</head>
 	<body>
+		<a href="{% url 'manager_index' %}">
+			<i class="fas fa-home" style="color: yellow; font-size: 40px; padding-top: 20px; padding-left: 30px"></i>
+		</a>
+		<a href="{% url 'manager_by_student' course_id=course.ID %}">
+			<i class="fas fa-arrow-left" style="color: yellow; font-size: 40px; padding-top: 20px; padding-left: 20px"></i>
+		</a>
 		<div class="container mt-5">
 			<div class="row">
 				<div class="col-md-3"></div>
@@ -22,17 +28,25 @@
 								</td><td style="text-align: left">
 									<input id="std_id" name="std_id" type="number" required maxlength="15" max="22899999999999" min="101000000000">
 								</td></tr>
-								{{ form.management_form }}
-								{% for field in form %}
-									<tr><td style="text-align: right">
-										{{ field.label_tag }}
-									</td><td  style="text-align: left">
-										{{ field }}
-									</td></tr>
-								{% endfor %}
+								<tr><td style="text-align: right">
+									نام:
+								</td><td style="text-align: left">
+									<input id="f_name" name="f_name" type="text">
+								</td></tr>
+								<tr><td style="text-align: right">
+									نام خانوادگی:
+								</td><td style="text-align: left">
+									<input id="l_name" name="l_name" type="text">
+								</td></tr>
 							</table>
+							{% for message in messages %}
+								<div class="alert alert-success">
+									<a class="close" href="#" data-dismiss="alert">×</a>
+									{{ message }}
+								</div>
+							{% endfor %}
 							<br>
-							<input type="submit" class="btn btn-secondary" name="upload" value="بارگذاری فایل">
+							<input type="submit" class="btn btn-secondary" name="upload" value="اضافه کردن دانشجو">
 						</form>
 					</div>
 				</div>

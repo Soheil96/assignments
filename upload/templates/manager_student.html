@@ -1,4 +1,5 @@
 {% load static %}
+{% load tz %}
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -20,35 +21,37 @@
 				<div class="col-md-3"></div>
 				<div class="col-md-6">
 					<div class="pricing-card p-4 text-center py-3">
-						<table border="1" style="width: 100%">
-							{% for assignment in assignments %}
-									<td><a href="score/{{ assignment.id }}">
-										<input type="submit" value="ثبت نمره جدید" style="background-color: #c69500">
-									</a></td>
-									<td width="10%">
-										{% if assignment.score  != None %}
-											{{ assignment.score }}
-										{% else %}
-											?
-										{% endif %}
-									</td>
-									<td width="10%">
-										<a href="download/{{ assignment.id }}/pdf/" target="_blank">
-											<button class="btn-icon" style="border: 0px">
-												<i class="fas fa-file-pdf" style="color: #bd2130; font-size: 25px"></i>
-											</button>
-										</a>
-									</td>
-									<td>{{ assignment.uploadDate }}</td>
-									<td>{{ assignment.assignment.name }}</td>
-									<td>
-										{% if assignment.last_upload %}
-											<i class="fas fa-check-circle" style="color: green"></i>
-										{% endif %}
-									</td>
-								</tr>
-							{% endfor %}
-						</table>
+						{% timezone 'Asia/Tehran' %}
+							<table border="1" style="width: 100%">
+								{% for assignment in assignments %}
+										<td><a href="score/{{ assignment.id }}">
+											<input type="submit" value="ثبت نمره جدید" style="background-color: #c69500">
+										</a></td>
+										<td width="10%">
+											{% if assignment.score  != None %}
+												{{ assignment.score }}
+											{% else %}
+												?
+											{% endif %}
+										</td>
+										<td width="10%">
+											<a href="download/{{ assignment.id }}/pdf/" target="_blank">
+												<button class="btn-icon" style="border: 0px">
+													<i class="fas fa-file-pdf" style="color: #bd2130; font-size: 25px"></i>
+												</button>
+											</a>
+										</td>
+										<td>{{ assignment.uploadDate }}</td>
+										<td>{{ assignment.assignment.name }}</td>
+										<td>
+											{% if assignment.last_upload %}
+												<i class="fas fa-check-circle" style="color: green"></i>
+											{% endif %}
+										</td>
+									</tr>
+								{% endfor %}
+							</table>
+						{% endtimezone %}
 					</div>
 				</div>
 			</div>

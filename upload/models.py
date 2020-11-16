@@ -1,10 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
-
-DEADLINE_CHOICES = [
-    ('passed', 'Passed'),
-    ('active', 'Still active'),
-]
+from django.utils import timezone
+import datetime
 
 
 class Course(models.Model):
@@ -26,13 +23,13 @@ class Student(models.Model):
         unique_together = (('student_id', 'course'),)
 
     def __str__(self):
-        return self.student_id + '(' + self.firstName + ' ' + self.lastName + ')'
+        return self.student_id + ' (' + self.firstName + ' ' + self.lastName + ')'
 
 
 class CourseAssignments(models.Model):
     name = models.CharField(max_length=100)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    deadline = models.CharField(max_length=20, choices=DEADLINE_CHOICES, default='active')
+    deadline = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.name
@@ -44,7 +41,7 @@ class Assignment(models.Model):
     file = models.FileField(upload_to='uploaded_files/')
     uploadDate = models.DateTimeField(auto_now_add=True)
     last_upload = models.BooleanField(default=True)
-    score = models.FloatField(null=True)
+    score = models.FloatField(null=True, blank=True)
 
     def __str__(self):
-        return self.assignment.__str__() + ' - ' + self.student.__str__()
+        return self.assignment.__str__() + '_' + self.assignment.course.__str__() + ' - ' + self.student.__str__()

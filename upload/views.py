@@ -226,22 +226,26 @@ def download(request, course_id, student_id, assignment_id, checksum):
 
 @login_required()
 def score_by_student(request, course_id, student_id, assignment_id):
+    assignment = get_object_or_404(Assignment, pk=assignment_id)
     if request.method == 'POST':
-        assignment = get_object_or_404(Assignment, pk=assignment_id)
         score = request.POST['score']
         if score:
             assignment.score = score
             assignment.save()
         return redirect('manager_student', course_id=course_id, student_id=student_id)
-    student = get_object_or_404(Student, pk=student_id)
-    return render(request, 'score.html', {'student': student})
+    student = get_object_or_404(Student, student_id=student_id)
+    score = assignment.score
+    if not score:
+        score = 0
+    return render(request, 'score.html', {'student': student, 'score': score})
 
 
 @login_required()
 def manager_by_assignment(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     assignments = CourseAssignments.objects.filter(course=course)
-    return render(request, 'manager_by_assignment.html', {'assignments': assignments, 'course': course})
+    now = datetime.datetime.now().astimezone(pytz.utc)
+    return render(request, 'manager_by_assignment.html', {'assignments': assignments, 'course': course, 'now': now})
 
 
 @login_required()
@@ -249,41 +253,55 @@ def manager_assignment(request, course_id, ca_id):
     course = get_object_or_404(Course, pk=course_id)
     CA = get_object_or_404(CourseAssignments, pk=ca_id)
     assignments = Assignment.objects.filter(assignment=CA)
-    return render(request, 'manager_assignment.html', {'assignments': assignments, 'course': course, 'CA': CA})
+    deadline = CA.deadline - datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+    if deadline.days < 0:
+        deadline = datetime.timedelta(0)
+    days, hours, minutes = deadline.days, deadline.seconds//3600, ((deadline.seconds+59)//60) % 60
+    return render(request, 'manager_assignment.html', {'assignments': assignments, 'course': course, 'CA': CA,
+                                                       'days': days, 'hour': hours, 'minutes': minutes})
+
+
+@login_required()
+def extend_assignment(request, course_id, ca_id):
+    course = get_object_or_404(Course, pk=course_id)
+    CA = get_object_or_404(CourseAssignments, pk=ca_id)
+    if request.method == 'POST':
+        deadline = datetime.datetime.strptime(request.POST['f_time'], '%Y-%m-%dT%H:%M')
+        deadline = deadline.astimezone(pytz.utc)
+        CA.deadline = deadline
+        CA.save()
+        return redirect(manager_assignment, course_id=course_id, ca_id=ca_id)
+    else:
+        deadline = CA.deadline.astimezone(pytz.timezone('Asia/Tehran')).strftime('%Y-%m-%dT%H:%M')
+        return render(request, 'extend_assignment.html', {'course': course, 'deadline': deadline})
 
 
 @login_required()
 def score_by_assignment(request, course_id, ca_id, assignment_id):
+    assignment = get_object_or_404(Assignment, pk=assignment_id)
     if request.method == 'POST':
-        assignment = get_object_or_404(Assignment, pk=assignment_id)
         score = request.POST['score']
         if score:
             assignment.score = score
             assignment.save()
         return redirect('manager_assignment', course_id=course_id, ca_id=ca_id)
-    assignment = get_object_or_404(Assignment, pk=assignment_id)
-    return render(request, 'score.html', {'student': assignment.student})
+    score = assignment.score
+    if not score:
+        score = 0
+    return render(request, 'score.html', {'student': assignment.student, 'score': score})
 
 
 @login_required()
 def add_assignment(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     if request.method == 'POST':
-        assignment = CourseAssignments(course=course, name=request.POST['name'])
+        deadline = datetime.datetime.strptime(request.POST['f_time'], '%Y-%m-%dT%H:%M')
+        deadline = deadline.astimezone(pytz.utc)
+        assignment = CourseAssignments(course=course, name=request.POST['name'], deadline=deadline)
         assignment.save()
         return redirect('manager_by_assignment', course_id=course_id)
-    return render(request, 'add_assignment.html', {'course': course})
-
-
-@login_required()
-def change_assignment_status(request, course_id, ca_id):
-    CA = get_object_or_404(CourseAssignments, pk=ca_id)
-    if CA.deadline == 'active':
-        CA.deadline = 'passed'
-    else:
-        CA.deadline = 'active'
-    CA.save()
-    return redirect('manager_assignment', course_id=course_id, ca_id=ca_id)
+    now = datetime.datetime.now().astimezone(pytz.timezone('Asia/Tehran')).strftime('%Y-%m-%dT%H:%M')
+    return render(request, 'add_assignment.html', {'course': course, 'now': now})
 
 
 @login_required()

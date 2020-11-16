@@ -1,4 +1,5 @@
 {% load static %}
+{% load tz %}
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -20,49 +21,47 @@
 				<div class="col-md-2"></div>
 				<div class="col-md-8">
 					<div class="pricing-card p-4 text-center py-3">
-						<table border="1" style="width: 100%">
-							{% for assignment in assignments %}
-									<td><a href="score/{{ assignment.id }}">
-										<input type="submit" value="ثبت نمره جدید" style="background-color: #c69500">
-									</a></td>
-									<td width="10%">
-										{% if assignment.score != None %}
-											{{ assignment.score }}
-										{% else %}
-											?
-										{% endif %}
-									</td>
-									<td width="10%">
-										<a href="download/{{ assignment.id }}/pdf/" target="_blank">
-											<button class="btn-icon" style="border: 0px">
-												<i class="fas fa-file-pdf" style="color: #bd2130; font-size: 25px"></i>
-											</button>
-										</a>
-									</td>
-									<td>{{ assignment.uploadDate }}</td>
-									<td>{{ assignment.student.lastName }}</td>
-									<td>{{ assignment.student.firstName }}</td>
-									<td>{{ assignment.student.student_id }}</td>
-									<td>
-										{% if assignment.last_upload %}
-											<i class="fas fa-check-circle" style="color: green"></i>
-										{% endif %}
-									</td>
-								</tr>
-							{% endfor %}
-						</table>
+						<a href="extend/"><input type="submit" value="تمدید تمرین" style="background-color: #20c997"></a>
+						از زمان تمرین {{ days }} روز {{ hour }} ساعت {{ minutes }}  دقیقه باقی مانده است
+						<br><br>
+						{% timezone 'Asia/Tehran' %}
+							<table border="1" style="width: 100%">
+								{% for assignment in assignments %}
+										<td><a href="score/{{ assignment.id }}">
+											<input type="submit" value="ثبت نمره جدید" style="background-color: #c69500">
+										</a></td>
+										<td width="10%">
+											{% if assignment.score != None %}
+												{{ assignment.score }}
+											{% else %}
+												?
+											{% endif %}
+										</td>
+										<td width="10%">
+											<a href="download/{{ assignment.id }}/pdf/" target="_blank">
+												<button class="btn-icon" style="border: 0px">
+													<i class="fas fa-file-pdf" style="color: #bd2130; font-size: 25px"></i>
+												</button>
+											</a>
+										</td>
+										<td>{{ assignment.uploadDate}}</td>
+										<td>{{ assignment.student.lastName }}</td>
+										<td>{{ assignment.student.firstName }}</td>
+										<td>{{ assignment.student.student_id }}</td>
+										<td>
+											{% if assignment.last_upload %}
+												<i class="fas fa-check-circle" style="color: green"></i>
+											{% endif %}
+										</td>
+									</tr>
+								{% endfor %}
+							</table>
+						{% endtimezone %}
 					</div>
 				</div>
 			</div>
 		</div>
 		<div style="position: fixed; right: 0; bottom: 0; text-align: right;">
-			<a href="{% url 'change_assignment_status' course_id=course.ID ca_id=CA.id %}">
-				{% if CA.deadline == 'active' %}
-					<i class="fas fa-lightbulb" style="color: #10ee10; font-size: 40px; padding-bottom: 30px"></i>
-				{% else %}
-					<i class="fas fa-lightbulb" style="color: #e02e10; font-size: 40px; padding-bottom: 30px"></i>
-				{% endif %}
-			</a>
 			<i class="fas fa-notting" style="color: yellow; font-size: 40px; padding-right: 30px; padding-bottom: 30px"></i>
 			<a href="{% url 'delete_assignment' course_id=course.ID ca_id=CA.id %}" onclick="return confirm('آیا مطمئن هستید که این تمرین و تمام فایل های آپلود شده برای این تمرین پاک شود؟')">
 				<i class="fas fa-trash-alt" style="color: yellow; font-size: 40px; padding-right: 30px; padding-bottom: 20px"></i>

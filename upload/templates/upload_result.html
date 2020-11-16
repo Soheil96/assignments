@@ -1,4 +1,5 @@
 {% load static %}
+{% load tz %}
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -15,7 +16,9 @@
 	<br><br><br>
 	<body>
 		{% if assignment %}
-			<h3 style="color:white; text-align: center"> با موفقیت در سرور بارگذاری شد {{ assignment.uploadDate }} (UTC timezone) فایل شما در تاریخ </h3>
+			{% timezone 'Asia/Tehran' %}
+				<h3 style="color:white; text-align: center"> با موفقیت در سرور بارگذاری شد {{ assignment.uploadDate }} فایل شما در تاریخ </h3>
+			{% endtimezone %}
 		{% else %}
 			<h3 style="color:white; text-align: center;"> بارگذاری فایل ناموفق بود </h3>
 			<h6 style="background-color:tomato;"> {{ error }} </h6>

@@ -15,11 +15,11 @@
 		<div class="container mt-5">
 			<div class="row">
 				{% for assignment in assignments %}
-					<div class="col-md-3">
+					<div class="col-md-3" style="padding-bottom: 15px">
 						<a href="{{ assignment.id }}">
 							<div class="pricing-card p-2 text-center py-5">
 								<h4 class="mt-3">{{ assignment.name }}</h4>
-								{% if assignment.deadline == 'active' %}
+								{% if assignment.deadline >= now %}
 									<span class="d-block font-weight-bold mt-3" style="color: #1e7e34">وضعیت: درجریان </span>
 								{% else %}
 									<span class="d-block font-weight-bold mt-3" style="color: #bd2130">وضعیت: به اتمام رسیده </span>

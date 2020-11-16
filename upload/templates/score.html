@@ -16,8 +16,8 @@
 					<div class="pricing-card p-4 text-center py-3 mt-2">
 						<form method="POST" action="">
 							{% csrf_token %}
-							<input type="text" id="score" name="score">
-							<br>
+							<input type="text" id="score" name="score" value="{{ score }}">
+							<br><br>
 							<input type="submit" value="ثبت">
 						</form>
 					</div>

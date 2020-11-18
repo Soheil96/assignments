@@ -262,22 +262,6 @@ def manager_assignment(request, course_id, ca_id):
 
 
 @login_required()
-def extend_assignment(request, course_id, ca_id):
-    course = get_object_or_404(Course, pk=course_id)
-    CA = get_object_or_404(CourseAssignments, pk=ca_id)
-    if request.method == 'POST':
-        deadline = datetime.datetime.strptime(request.POST['f_time'], '%Y-%m-%dT%H:%M')
-        deadline = deadline.replace(tzinfo=pytz.timezone('Asia/Tehran'))
-        deadline = deadline.astimezone(pytz.utc)
-        CA.deadline = deadline
-        CA.save()
-        return redirect(manager_assignment, course_id=course_id, ca_id=ca_id)
-    else:
-        deadline = CA.deadline.astimezone(pytz.timezone('Asia/Tehran')).strftime('%Y-%m-%dT%H:%M')
-        return render(request, 'extend_assignment.html', {'course': course, 'deadline': deadline})
-
-
-@login_required()
 def score_by_assignment(request, course_id, ca_id, assignment_id):
     assignment = get_object_or_404(Assignment, pk=assignment_id)
     if request.method == 'POST':
@@ -297,13 +281,31 @@ def add_assignment(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     if request.method == 'POST':
         deadline = datetime.datetime.strptime(request.POST['f_time'], '%Y-%m-%dT%H:%M')
-        deadline = deadline.replace(tzinfo=pytz.timezone('Asia/Tehran'))
+        tehrantz = datetime.timezone(datetime.timedelta(hours=+3, minutes=30))
+        deadline = deadline.replace(tzinfo=tehrantz)
         deadline = deadline.astimezone(pytz.utc)
         assignment = CourseAssignments(course=course, name=request.POST['name'], deadline=deadline)
         assignment.save()
         return redirect('manager_by_assignment', course_id=course_id)
     now = datetime.datetime.now().astimezone(pytz.timezone('Asia/Tehran')).strftime('%Y-%m-%dT%H:%M')
     return render(request, 'add_assignment.html', {'course': course, 'now': now})
+
+
+@login_required()
+def extend_assignment(request, course_id, ca_id):
+    course = get_object_or_404(Course, pk=course_id)
+    CA = get_object_or_404(CourseAssignments, pk=ca_id)
+    if request.method == 'POST':
+        deadline = datetime.datetime.strptime(request.POST['f_time'], '%Y-%m-%dT%H:%M')
+        tehrantz = datetime.timezone(datetime.timedelta(hours=+3, minutes=30))
+        deadline = deadline.replace(tzinfo=tehrantz)
+        deadline = deadline.astimezone(pytz.utc)
+        CA.deadline = deadline
+        CA.save()
+        return redirect(manager_assignment, course_id=course_id, ca_id=ca_id)
+    else:
+        deadline = CA.deadline.astimezone(pytz.timezone('Asia/Tehran')).strftime('%Y-%m-%dT%H:%M')
+        return render(request, 'extend_assignment.html', {'course': course, 'deadline': deadline})
 
 
 @login_required()

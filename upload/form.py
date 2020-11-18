@@ -22,7 +22,7 @@ class AssignmentForm(forms.ModelForm):
     def __init__(self, course=None, *args, **kwargs):
         super(AssignmentForm, self).__init__(*args, **kwargs)
         if course:
-            now = datetime.datetime.now().astimezone(pytz.utc) - datetime.timedelta(0, 120)
+            now = datetime.datetime.now().astimezone(pytz.utc) - datetime.timedelta(0, 180)
             self.fields['assignment'].queryset = CourseAssignments.objects.filter(course=course, deadline__gte=now)
 
     def clean(self):

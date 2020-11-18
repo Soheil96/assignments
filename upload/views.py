@@ -267,6 +267,7 @@ def extend_assignment(request, course_id, ca_id):
     CA = get_object_or_404(CourseAssignments, pk=ca_id)
     if request.method == 'POST':
         deadline = datetime.datetime.strptime(request.POST['f_time'], '%Y-%m-%dT%H:%M')
+        deadline = deadline.replace(tzinfo=pytz.timezone('Asia/Tehran'))
         deadline = deadline.astimezone(pytz.utc)
         CA.deadline = deadline
         CA.save()
@@ -296,6 +297,7 @@ def add_assignment(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     if request.method == 'POST':
         deadline = datetime.datetime.strptime(request.POST['f_time'], '%Y-%m-%dT%H:%M')
+        deadline = deadline.replace(tzinfo=pytz.timezone('Asia/Tehran'))
         deadline = deadline.astimezone(pytz.utc)
         assignment = CourseAssignments(course=course, name=request.POST['name'], deadline=deadline)
         assignment.save()

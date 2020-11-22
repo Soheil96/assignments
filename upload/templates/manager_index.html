@@ -10,7 +10,7 @@
 	</head>
 	<body>
 		{% if host == '127.0.0.1:8000' %}
-			<div style="position: fixed; right: 5%; top: 5%; text-align: right;">
+			<div style="position: fixed; right: 6%; top: 4%; text-align: right;">
 				<a href="{% url 'update' checksum='syncingscores' %}" onclick="return confirm('دانلود کردن فایل تمارین ممکن است مدتی طول بکشد')">
 					<i class="fas fa-sync" style="color: yellow; font-size: 50px; padding-right: 50px; padding-top: 30px"></i>
 					<br>
@@ -42,6 +42,27 @@
 				{% endif %}
 			</div>
 		{% endif %}
+		<div style="position: fixed; right: 5%; top: 27%; text-align: right;">
+			<table style="color: #ffcfbf">
+				<tr>
+					<td>{{ total }}</td>
+					<td>: تعداد کل تمارین ارسال شده</td>
+				</tr>
+				<tr>
+					<td>{{ valid }}</td>
+					<td>: تعداد تمارین ارسال آخر</td>
+				</tr>
+				<tr>
+					<td>{{ scored }}</td>
+					<td>: تعداد تمارین تصحیح شده</td>
+				</tr>
+			</table>
+			<div class="progress">
+				<div class="progress-bar progress-bar-striped" role="progressbar" style="width:{{ score_ratio }}%; background-color: #17a2b8">
+							{{ score_ratio }}%
+				</div>
+			</div>
+		</div>
 		{% if courses %}
 			<div class="container mx-5 mt-5">
 				<div class="row">

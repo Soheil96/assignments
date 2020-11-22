@@ -125,7 +125,9 @@ def course(request, course_id):
                 old[0].last_upload = False
                 old[0].save()
             assignment.save()
-            return render(request, 'upload_result.html', {'assignment': assignment})
+            file = str(assignment.file).replace('uploaded_files/', '')
+            volume = int(os.stat(os.path.join(settings.MEDIA_ROOT, str(assignment.file))).st_size / 10000) / 100
+            return render(request, 'upload_result.html', {'assignment': assignment, 'file': file, 'volume': volume})
         else:
             return render(request, 'upload_result.html', {'assignment': None, 'error': form.errors})
     form = AssignmentForm(course=course)
@@ -154,7 +156,16 @@ def manager_index(request):
         file = 'uploaded_files/' + file
         used_volume += os.stat(os.path.join(settings.MEDIA_ROOT, file)).st_size / 1000000
     used_volume = int(used_volume*100)/100
-    return render(request, 'manager_index.html', {'courses': courses, 'host': request.get_host(), 'progress': used_volume, 'percent': used_volume/4.25})
+    assignments = Assignment.objects.all()
+    total, valid, scored = 0, 0, 0
+    for assignment in assignments:
+        total += 1
+        if assignment.last_upload:
+            valid += 1
+            if assignment.score is not None:
+                scored += 1
+    return render(request, 'manager_index.html', {'courses': courses, 'host': request.get_host(), 'progress': used_volume, 'percent': used_volume/4.25,
+                                                  'total': total, 'valid': valid, 'scored': scored, 'score_ratio': int(1000*scored/valid)/10})
 
 
 @login_required()

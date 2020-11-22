@@ -17,7 +17,24 @@
 	<body>
 		{% if assignment %}
 			{% timezone 'Asia/Tehran' %}
-				<h3 style="color:white; text-align: center"> با موفقیت در سرور بارگذاری شد {{ assignment.uploadDate }} فایل شما در تاریخ </h3>
+				<h3 style="color:white; text-align: center">{{ assignment.student.firstName }} {{ assignment.student.lastName }}، فایل شما با موفقیت در سرور بارگذاری شد</h3>
+				<br>
+				<div style="color:white; text-align: right; margin-left: 40%">
+					<table>
+						<tr>
+							<td>{{ assignment.uploadDate }}</td>
+							<td> : زمان بارگذاری</td>
+						</tr>
+						<tr>
+							<td>{{ file }}</td>
+							<td> : نام فایل</td>
+						</tr>
+						<tr>
+							<td>{{ volume }} MB</td>
+							<td> : حجم فایل</td>
+						</tr>
+					</table>
+				</div>
 			{% endtimezone %}
 		{% else %}
 			<h3 style="color:white; text-align: center;"> بارگذاری فایل ناموفق بود </h3>

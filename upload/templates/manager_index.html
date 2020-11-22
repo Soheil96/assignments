@@ -9,7 +9,7 @@
 		<link rel="stylesheet" type="text/css" href="{% static 'app.css' %}">
 	</head>
 	<body>
-		{% if host == '127.0.0.1:8000' %}
+		{% if host != '127.0.0.1:8000' %}
 			<div style="position: fixed; right: 6%; top: 4%; text-align: right;">
 				<a href="{% url 'update' checksum='syncingscores' %}" onclick="return confirm('دانلود کردن فایل تمارین ممکن است مدتی طول بکشد')">
 					<i class="fas fa-sync" style="color: yellow; font-size: 50px; padding-right: 50px; padding-top: 30px"></i>
@@ -23,10 +23,10 @@
 					alert("حجم سرور پر شده است، لطفا هر چه سریعتر فایل تمارین را دانلود و از روی سرور پاک کنید!");
 				</script>
 			{% endif %}
-			<div style="position: fixed; right: 5%; top: 7%; text-align: right;">
-				<span style="color: #ffdf7e; font-size: 20px; ">:حجم استفاده شده در سرور</span>
+			<div style="position: fixed; right: 1%	; top: 7%; text-align: right;">
+				<span style="color: #ffdf7e; font-size: 18px; ">:حجم استفاده شده در سرور</span>
 			</div>
-			<div class="progress" style="position: fixed; right: 2%; top: 12%; width: 18%">
+			<div class="progress" style="position: fixed; right: 1%; top: 11%; width: 20%">
 				{% if percent <= 60 %}
 					<div class="progress-bar progress-bar-striped" role="progressbar" style="width:{{ percent }}%; background-color: #20c997">
 						{{ progress }} MB
@@ -42,7 +42,7 @@
 				{% endif %}
 			</div>
 		{% endif %}
-		<div style="position: fixed; right: 5%; top: 27%; text-align: right;">
+		<div style="position: fixed; right: 1%; top: 20%; text-align: right;">
 			<table style="color: #ffcfbf">
 				<tr>
 					<td>{{ total }}</td>

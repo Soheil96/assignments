@@ -17,9 +17,9 @@
 	<body>
 		{% if assignment %}
 			{% timezone 'Asia/Tehran' %}
-				<h3 style="color:white; text-align: center">{{ assignment.student.firstName }} {{ assignment.student.lastName }}، فایل شما با موفقیت در سرور بارگذاری شد</h3>
+				<h1 style="color:white; text-align: center">{{ assignment.student.firstName }} {{ assignment.student.lastName }}، فایل شما با موفقیت در سرور بارگذاری شد</h1>
 				<br>
-				<div style="color:white; text-align: right; margin-left: 40%">
+				<div style="color:white; text-align: right; margin-left: 35%; font-size: 25px">
 					<table>
 						<tr>
 							<td>{{ assignment.uploadDate }}</td>
@@ -37,8 +37,8 @@
 				</div>
 			{% endtimezone %}
 		{% else %}
-			<h3 style="color:white; text-align: center;"> بارگذاری فایل ناموفق بود </h3>
-			<h6 style="background-color:tomato;"> {{ error }} </h6>
+			<h1 style="color:white; text-align: center;"> بارگذاری فایل ناموفق بود </h1>
+			<h4 style="background-color:tomato;"> {{ error }} </h4>
 		{% endif %}
 	</body>
 </html>

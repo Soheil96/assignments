@@ -112,11 +112,9 @@ def course(request, course_id):
         std_id = request.POST['std_id']
         form = AssignmentForm(course, request.POST, request.FILES)
         student = Student.objects.filter(course=course, student_id=std_id)
-        if '.pdf' not in request.FILES['file'].__str__().lower():
-            form.errors[' '] = "باشند pdf فایل آپلود شده باید به فرمت"
         if not student:
             form.errors[''] = 'شماره دانشجویی وارد شده، در این کلاس ثبت نام نمی باشد'
-        if form.is_valid():
+        if form.is_valid() and '.pdf' in request.FILES['file'].__str__().lower():
             assignment = form.save(commit=False)
             assignment.file = request.FILES['file']
             assignment.student = student.first()
@@ -129,6 +127,8 @@ def course(request, course_id):
             volume = int(os.stat(os.path.join(settings.MEDIA_ROOT, str(assignment.file))).st_size / 10000) / 100
             return render(request, 'upload_result.html', {'assignment': assignment, 'file': file, 'volume': volume})
         else:
+            if '.pdf' not in request.FILES['file'].__str__().lower() and not form.errors:
+                form.errors[' '] = "باشند pdf فایل آپلود شده باید به فرمت"
             return render(request, 'upload_result.html', {'assignment': None, 'error': form.errors})
     form = AssignmentForm(course=course)
     return render(request, 'course.html', {'form': form, 'course': course})
@@ -261,7 +261,7 @@ def manager_by_assignment(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     assignments = CourseAssignments.objects.filter(course=course)
     now = datetime.datetime.now().astimezone(pytz.utc)
-    return render(request, 'manager_by_assignment.html', {'assignments': assignments, 'course': course, 'now': now})
+    return render(request, 'manager_by_assignment.html', {'assignments': assignments, 'course': course, 'now': now, 'host': request.get_host()})
 
 
 @login_required()
@@ -274,7 +274,7 @@ def manager_assignment(request, course_id, ca_id):
         deadline = datetime.timedelta(0)
     days, hours, minutes = deadline.days, deadline.seconds//3600, ((deadline.seconds+59)//60) % 60
     return render(request, 'manager_assignment.html', {'assignments': assignments, 'course': course, 'CA': CA,
-                                                       'days': days, 'hour': hours, 'minutes': minutes})
+                                                       'days': days, 'hour': hours, 'minutes': minutes, 'host': request.get_host()})
 
 
 @login_required()

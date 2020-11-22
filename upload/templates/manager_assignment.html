@@ -18,10 +18,12 @@
 		</a>
 		<div class="container mt-5">
 			<div class="row">
-				<div class="col-md-2"></div>
-				<div class="col-md-8">
+				<div class="col-md-1"></div>
+				<div class="col-md-10">
 					<div class="pricing-card p-4 text-center py-3">
-						<a href="extend/"><input type="submit" value="تمدید تمرین" style="background-color: #20c997"></a>
+						{% if host != '127.0.0.1:8000' %}
+							<a href="extend/"><input type="submit" value="تمدید تمرین" style="background-color: #20c997"></a>
+						{% endif %}
 						از زمان تمرین {{ days }} روز {{ hour }} ساعت {{ minutes }}  دقیقه باقی مانده است
 						<br><br>
 						{% timezone 'Asia/Tehran' %}

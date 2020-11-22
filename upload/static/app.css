@@ -15,12 +15,12 @@
 .moving {
     position: relative;
     animation-name: example;
-    animation-duration: 3s;
+    animation-duration: 2s;
     animation-fill-mode: both;
 }
 
 @keyframes example {
-  from {top: -200px;}
+  from {top: -150px;}
   to {top: 0px;}
 }
 

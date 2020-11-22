@@ -10,33 +10,62 @@
 	</head>
 	<body>
 		{% if host == '127.0.0.1:8000' %}
-			<div style="position: fixed; right: 0; top: 0; text-align: right;">
+			<div style="position: fixed; right: 5%; top: 5%; text-align: right;">
 				<a href="{% url 'update' checksum='syncingscores' %}" onclick="return confirm('دانلود کردن فایل تمارین ممکن است مدتی طول بکشد')">
 					<i class="fas fa-sync" style="color: yellow; font-size: 50px; padding-right: 50px; padding-top: 30px"></i>
 					<br>
 					<span style="color: #ffdf7e; padding-right: 30px; font-size: 25px; ">بروز رسانی</span>
 				</a>
 			</div>
+		{% else %}
+			{% if percent >= 90 %}
+				<script type="text/javascript">
+					alert("حجم سرور پر شده است، لطفا هر چه سریعتر فایل تمارین را دانلود و از روی سرور پاک کنید!");
+				</script>
+			{% endif %}
+			<div style="position: fixed; right: 5%; top: 7%; text-align: right;">
+				<span style="color: #ffdf7e; font-size: 20px; ">:حجم استفاده شده در سرور</span>
+			</div>
+			<div class="progress" style="position: fixed; right: 2%; top: 12%; width: 18%">
+				{% if percent <= 60 %}
+					<div class="progress-bar progress-bar-striped" role="progressbar" style="width:{{ percent }}%; background-color: #20c997">
+						{{ progress }} MB
+					</div>
+				{% elif  percent <= 80 %}
+					<div class="progress-bar progress-bar-striped" role="progressbar" style="width:{{ percent }}%; background-color: #fd7e14">
+						{{ progress }} MB
+					</div>
+				{% else %}
+					<div class="progress-bar progress-bar-striped" role="progressbar" style="width:{{ percent }}%; background-color: #bd2130">
+						{{ progress }} MB
+					</div>
+				{% endif %}
+			</div>
 		{% endif %}
 		{% if courses %}
-			<div class="container mt-5">
+			<div class="container mx-5 mt-5">
 				<div class="row">
 					{% for course in courses %}
-						<div class="col-md-4" style="padding-bottom: 10px">
-							<div class="pricing-card p-3 text-center py-5 mt-2">
+						<div class="col-md-4" style="padding-bottom: 1.5%">
+							<div class="pricing-card p-3 text-center py-5 mt-2 clickable-card moving">
 								<h4 class="mt-3">{{ course.name }}</h4>
 								<span class="d-block font-weight-bold mt-3">{{ course.ID }} :کد درس</span>
-								<a href="{{ course.ID }}/bystudent/">
-									<button class="btn btn-primary shadow mt-4 px-5 rounded-pill" type="button">بر اساس دانشجو</button>
-								</a>
-								<a href="{{ course.ID }}/byassignment/">
-									<button class="btn btn-primary shadow mt-4 px-5 rounded-pill" type="button">بر اساس تمرین</button>
-								</a>
-								<br>
-								<a href="{{ course.ID }}/scores/">
-									<i class="fas fa-file-alt" style="color: #17a2b8; font-size: 30px; padding-top: 20px"></i>
-									 لیست نمرات
-								</a>
+								<div class="card-content">
+									<a href="{{ course.ID }}/bystudent/">
+										<button class="btn btn-primary shadow mt-4 px-5 rounded-pill" type="button">بر اساس دانشجو</button>
+									</a>
+								</div>
+								<div class="card-content">
+									<a href="{{ course.ID }}/byassignment/">
+										<button class="btn btn-primary shadow mt-4 px-5 rounded-pill" type="button">بر اساس تمرین</button>
+									</a>
+								</div>
+								<div class="card-content">
+									<a href="{{ course.ID }}/scores/">
+										<i class="fas fa-file-alt" style="color: #17a2b8; font-size: 30px; padding-top: 20px"></i>
+										 لیست نمرات
+									</a>
+								</div>
 							</div>
 						</div>
 					{% endfor %}

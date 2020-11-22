@@ -149,7 +149,12 @@ def login_page(request):
 @login_required()
 def manager_index(request):
     courses = Course.objects.all()
-    return render(request, 'manager_index.html', {'courses': courses, 'host': request.get_host()})
+    used_volume = 0.0
+    for file in os.listdir(os.path.join(settings.MEDIA_ROOT, 'uploaded_files/')):
+        file = 'uploaded_files/' + file
+        used_volume += os.stat(os.path.join(settings.MEDIA_ROOT, file)).st_size / 1000000
+    used_volume = int(used_volume*100)/100
+    return render(request, 'manager_index.html', {'courses': courses, 'host': request.get_host(), 'progress': used_volume, 'percent': used_volume/4.25})
 
 
 @login_required()

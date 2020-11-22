@@ -12,6 +12,32 @@
     box-shadow: 0px 0px 5px 0px rgb(161, 163, 164)
 }
 
+.moving {
+    position: relative;
+    animation-name: example;
+    animation-duration: 3s;
+    animation-fill-mode: both;
+}
+
+@keyframes example {
+  from {top: -200px;}
+  to {top: 0px;}
+}
+
+.clickable-card:hover{
+    background-color: #dfdfff;
+    transform: scale(1.07);
+}
+
+.clickable-card:hover .card-content{
+    opacity: 1;
+    transform: scale(1.15);
+}
+
+.card-content {
+    opacity: 0.85;
+}
+
 .btn-primary,
 .btn-primary:hover,
 .btn-primary:active,
@@ -43,5 +69,5 @@ body {
 
 /* Darker background on mouse-over */
 .btn-icon:hover {
-  background-color: rosybrown;
+  background-color: #f8d7da;
 }

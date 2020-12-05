@@ -21,11 +21,27 @@
 				<div class="col-md-1"></div>
 				<div class="col-md-10">
 					<div class="pricing-card p-4 text-center py-3">
-						{% if host != '127.0.0.1:8000' %}
-							<a href="extend/"><input type="submit" value="تمدید تمرین" style="background-color: #20c997"></a>
-						{% endif %}
-						از زمان تمرین {{ days }} روز {{ hour }} ساعت {{ minutes }}  دقیقه باقی مانده است
-						<br><br>
+						<table border="0" style="width: 100%">
+							<tr>
+								<td>
+									{% if host != '127.0.0.1:8000' %}
+										<a href="score/assignment/"><input type="submit" value="تغییر بارم" style="background-color: #20c997"></a>
+									{% endif %}
+									{% if CA.score %}
+									بارم تمرین: {{ CA.score }} نمره
+									{% else %}
+										بارم برای این تمرین وارد نشده
+									{% endif %}
+								</td>
+								<td>
+									{% if host != '127.0.0.1:8000' %}
+										<a href="extend/"><input type="submit" value="تمدید تمرین" style="background-color: #20c997"></a>
+									{% endif %}
+									از زمان تمرین {{ days }} روز {{ hour }} ساعت {{ minutes }}  دقیقه باقی مانده است
+								</td>
+							</tr>
+						</table>
+						<br>
 						{% timezone 'Asia/Tehran' %}
 							<table border="1" style="width: 100%">
 								{% for assignment in assignments %}
@@ -64,6 +80,9 @@
 			</div>
 		</div>
 		<div style="position: fixed; right: 0; bottom: 0; text-align: right;">
+			<a href="{% url 'assignment_all_scores' course_id=course.ID ca_id=CA.id %}">
+				<i class="fas fa-file-excel" style="color: yellow; font-size: 40px; padding-bottom: 20px"></i>
+			</a>
 			<i class="fas fa-notting" style="color: yellow; font-size: 40px; padding-right: 30px; padding-bottom: 30px"></i>
 			<a href="{% url 'delete_assignment' course_id=course.ID ca_id=CA.id %}" onclick="return confirm('آیا مطمئن هستید که این تمرین و تمام فایل های آپلود شده برای این تمرین پاک شود؟')">
 				<i class="fas fa-trash-alt" style="color: yellow; font-size: 40px; padding-right: 30px; padding-bottom: 20px"></i>

@@ -17,7 +17,11 @@
 						<table border="1" style="width: 100%">
 							<tr>
 								{% for CA in CAs %}
-									<td>{{ CA.name }}</td>
+									{% if CA.score %}
+										<td>{{ CA.name }} ({{ CA.score }}  نمره)</td>
+									{% else %}
+										<td>{{ CA.name }}</td>
+									{% endif %}
 								{% endfor %}
 								<td>نام خانوادگی</td>
 								<td>نام دانشجو</td>

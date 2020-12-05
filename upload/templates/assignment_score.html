@@ -18,16 +18,12 @@
                 			{% csrf_token %}
 							<table class="table">
 								<tr>
-                        			<td><label for="name">نام تمرین:</label></td>
-                        			<td><input id="name" name="name" type="text" class="form-control" required></td>
-								</tr>
-								<tr>
-									<td><label for="f_time">زمان اتمام:</label></td>
-									<td><input id="f_time" name="f_time" type="datetime-local" value="{{ now }}" required></td>
-								</tr>
-								<tr>
-									<td><label for="score">بارم تمرین (قابل تغییر):</label></td>
-									<td><input id="score" name="score"></td>
+									<td><label for="score">بارم تمرین:</label></td>
+									{% if score %}
+										<td><input id="score" name="score" value="{{ score }}"></td>
+									{% else %}
+										<td><input id="score" name="score"></td>
+									{% endif %}
 								</tr>
 							</table>
 							{% for message in messages %}
@@ -36,7 +32,7 @@
 									{{ message }}
 								</div>
 							{% endfor %}
-							<input type="submit" value="اضافه کردن تمرین" class="btn btn-primary pull-right" />
+							<input type="submit" value="تغییر بارم" class="btn btn-primary pull-right" />
 						</form>
 					</div>
 				</div>

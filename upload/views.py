@@ -5,6 +5,9 @@ import pandas as pd
 import pytz
 import requests
 import json
+from io import BytesIO
+import xlsxwriter
+from django.utils.translation import ugettext
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
@@ -300,7 +303,10 @@ def add_assignment(request, course_id):
         tehrantz = datetime.timezone(datetime.timedelta(hours=+3, minutes=30))
         deadline = deadline.replace(tzinfo=tehrantz)
         deadline = deadline.astimezone(pytz.utc)
-        assignment = CourseAssignments(course=course, name=request.POST['name'], deadline=deadline)
+        score = None
+        if request.POST['score']:
+            score = float(request.POST['score'])
+        assignment = CourseAssignments(course=course, name=request.POST['name'], deadline=deadline, score=score)
         assignment.save()
         return redirect('manager_by_assignment', course_id=course_id)
     now = datetime.datetime.now().astimezone(pytz.timezone('Asia/Tehran')).strftime('%Y-%m-%dT%H:%M')
@@ -322,6 +328,62 @@ def extend_assignment(request, course_id, ca_id):
     else:
         deadline = CA.deadline.astimezone(pytz.timezone('Asia/Tehran')).strftime('%Y-%m-%dT%H:%M')
         return render(request, 'extend_assignment.html', {'course': course, 'deadline': deadline})
+
+
+@login_required()
+def assignment_score(request, course_id, ca_id):
+    course = get_object_or_404(Course, pk=course_id)
+    CA = get_object_or_404(CourseAssignments, pk=ca_id)
+    if request.method == 'POST':
+        score = None
+        if request.POST['score']:
+            score = float(request.POST['score'])
+        CA.score = score
+        CA.save()
+        return redirect(manager_assignment, course_id=course_id, ca_id=ca_id)
+    else:
+        return render(request, 'assignment_score.html', {'course': course, 'score': CA.score})
+
+
+@login_required()
+def assignment_all_scores(request, course_id, ca_id):
+    CA = get_object_or_404(CourseAssignments, pk=ca_id)
+    output = BytesIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet("scores")
+    title = workbook.add_format({
+        'bold': True,
+        'font_size': 12,
+        'align': 'center',
+        'valign': 'vcenter'
+    })
+    header = workbook.add_format({
+        'bg_color': '#F7F7F7',
+        'color': 'black',
+        'align': 'center',
+        'valign': 'top',
+        'border': 1
+    })
+    cell = workbook.add_format({
+        'align': 'center',
+        'valign': 'vcenter'
+    })
+    title_text = u"{0} {1}".format(ugettext("نمرات "), CA.name)
+    worksheet.merge_range('B2:C2', title_text, title)
+    worksheet.write(2, 1, ugettext("از " + str(CA.score) + " نمره"), header)
+    worksheet.write(2, 2, ugettext("شماره دانشجویی"), header)
+    assignments = Assignment.objects.filter(assignment=CA, last_upload=True)
+    for ind, assignment in enumerate(assignments):
+        worksheet.write(ind + 3, 1, assignment.score, cell)
+        worksheet.write(ind + 3, 2, assignment.student.student_id, cell)
+    worksheet.set_column('C:C', 20)
+    worksheet.set_column('B:B', 10)
+    workbook.close()
+    xlsx_data = output.getvalue()
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename=scores.xlsx'
+    response.write(xlsx_data)
+    return response
 
 
 @login_required()

@@ -120,6 +120,8 @@ def course(request, course_id):
         if form.is_valid() and '.pdf' in request.FILES['file'].__str__().lower():
             assignment = form.save(commit=False)
             assignment.file = request.FILES['file']
+            now = datetime.datetime.now().astimezone(pytz.timezone('Asia/Tehran')).strftime('%Y-%m-%d_%H-%M-%S.%f')[:-3]
+            assignment.file.name = now + '_' + assignment.file.name
             assignment.student = student.first()
             old = Assignment.objects.filter(assignment=assignment.assignment, student=assignment.student, last_upload=True)
             if old:

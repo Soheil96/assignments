@@ -249,6 +249,8 @@ def download(request, course_id, student_id, assignment_id, checksum):
 def score_by_student(request, course_id, student_id, assignment_id):
     assignment = get_object_or_404(Assignment, pk=assignment_id)
     if request.method == 'POST':
+        assignment.cheat_numbers = request.POST['cheat_id']
+        assignment.comment = request.POST['comment']
         assignment.is_cheated = 'cheat' in request.POST
         score = request.POST['score']
         if score:
@@ -259,7 +261,7 @@ def score_by_student(request, course_id, student_id, assignment_id):
     score = assignment.score
     if not score:
         score = 0
-    return render(request, 'score.html', {'student': student, 'score': score, 'cheated': assignment.is_cheated})
+    return render(request, 'score.html', {'student': student, 'score': score, 'assignment': assignment})
 
 
 @login_required()
@@ -287,6 +289,8 @@ def manager_assignment(request, course_id, ca_id):
 def score_by_assignment(request, course_id, ca_id, assignment_id):
     assignment = get_object_or_404(Assignment, pk=assignment_id)
     if request.method == 'POST':
+        assignment.cheat_numbers = request.POST['cheat_id']
+        assignment.comment = request.POST['comment']
         assignment.is_cheated = 'cheat' in request.POST
         score = request.POST['score']
         if score:
@@ -296,7 +300,7 @@ def score_by_assignment(request, course_id, ca_id, assignment_id):
     score = assignment.score
     if not score:
         score = 0
-    return render(request, 'score.html', {'student': assignment.student, 'score': score, 'cheated': assignment.is_cheated})
+    return render(request, 'score.html', {'student': assignment.student, 'score': score, 'assignment': assignment})
 
 
 @login_required()

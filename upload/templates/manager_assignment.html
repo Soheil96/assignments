@@ -49,7 +49,12 @@
 											<input type="submit" value="ثبت نمره جدید" style="background-color: #c69500">
 										</a></td>
 										{% if assignment.is_cheated %}
-											<td width="5%" style="color: #fd7e14">!تقلب</td>
+											<td width="5%" style="color: #fd7e14">
+												!تقلب
+												{% if assignment.cheat_numbers %}
+													({{ assignment.cheat_numbers }})
+												{% endif %}
+											</td>
 										{% else %}
 											<td width="5%"></td>
 										{% endif %}

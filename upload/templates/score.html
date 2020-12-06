@@ -16,16 +16,21 @@
 					<div class="pricing-card p-4 text-center py-3 mt-2">
 						<form method="POST" action="">
 							{% csrf_token %}
+							<label for="cheat">نمره:</label>
 							<input type="text" id="score" name="score" value="{{ score }}">
 							<br>
+							<input style="width: 15%" type="text" id="cheat_id" name="cheat_id"
+								   value="{% if assignment.cheat_numbers %}{{ assignment.cheat_numbers }}{% endif %}">
 							<label for="cheat">تقلب کرده</label>
 							<input type="checkbox" id="cheat" name="cheat">
-							{% if cheated %}
+							{% if assignment.is_cheated %}
 								<script>
 									document.getElementById('cheat').checked = true;
 								</script>
 							{% endif %}
 							<br>
+							<textarea style="width: 75%" id="comment" name="comment">{% if assignment.comment %}{{ assignment.comment }}{% endif %}</textarea>
+							<br><br>
 							<input type="submit" value="ثبت">
 						</form>
 					</div>

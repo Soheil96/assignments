@@ -27,6 +27,11 @@
 										<td><a href="score/{{ assignment.id }}">
 											<input type="submit" value="ثبت نمره جدید" style="background-color: #c69500">
 										</a></td>
+										{% if assignment.is_cheated %}
+											<td width="7%" style="color: #fd7e14">!تقلب</td>
+										{% else %}
+											<td width="7%"></td>
+										{% endif %}
 										<td width="10%">
 											{% if assignment.score  != None %}
 												{{ assignment.score }}

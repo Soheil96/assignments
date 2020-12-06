@@ -17,7 +17,15 @@
 						<form method="POST" action="">
 							{% csrf_token %}
 							<input type="text" id="score" name="score" value="{{ score }}">
-							<br><br>
+							<br>
+							<label for="cheat">تقلب کرده</label>
+							<input type="checkbox" id="cheat" name="cheat">
+							{% if cheated %}
+								<script>
+									document.getElementById('cheat').checked = true;
+								</script>
+							{% endif %}
+							<br>
 							<input type="submit" value="ثبت">
 						</form>
 					</div>

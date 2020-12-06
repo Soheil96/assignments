@@ -249,6 +249,7 @@ def download(request, course_id, student_id, assignment_id, checksum):
 def score_by_student(request, course_id, student_id, assignment_id):
     assignment = get_object_or_404(Assignment, pk=assignment_id)
     if request.method == 'POST':
+        assignment.is_cheated = 'cheat' in request.POST
         score = request.POST['score']
         if score:
             assignment.score = score
@@ -258,7 +259,7 @@ def score_by_student(request, course_id, student_id, assignment_id):
     score = assignment.score
     if not score:
         score = 0
-    return render(request, 'score.html', {'student': student, 'score': score})
+    return render(request, 'score.html', {'student': student, 'score': score, 'cheated': assignment.is_cheated})
 
 
 @login_required()
@@ -286,6 +287,7 @@ def manager_assignment(request, course_id, ca_id):
 def score_by_assignment(request, course_id, ca_id, assignment_id):
     assignment = get_object_or_404(Assignment, pk=assignment_id)
     if request.method == 'POST':
+        assignment.is_cheated = 'cheat' in request.POST
         score = request.POST['score']
         if score:
             assignment.score = score
@@ -294,7 +296,7 @@ def score_by_assignment(request, course_id, ca_id, assignment_id):
     score = assignment.score
     if not score:
         score = 0
-    return render(request, 'score.html', {'student': assignment.student, 'score': score})
+    return render(request, 'score.html', {'student': assignment.student, 'score': score, 'cheated': assignment.is_cheated})
 
 
 @login_required()
@@ -370,13 +372,21 @@ def assignment_all_scores(request, course_id, ca_id):
         'align': 'center',
         'valign': 'vcenter'
     })
+    red_cell = workbook.add_format({
+        'align': 'center',
+        'valign': 'vcenter'
+    })
+    red_cell.set_bg_color('red')
     title_text = u"{0} {1}".format(ugettext("نمرات "), CA.name)
     worksheet.merge_range('B2:C2', title_text, title)
     worksheet.write(2, 1, ugettext("از " + str(CA.score) + " نمره"), header)
     worksheet.write(2, 2, ugettext("شماره دانشجویی"), header)
     assignments = Assignment.objects.filter(assignment=CA, last_upload=True)
     for ind, assignment in enumerate(assignments):
-        worksheet.write(ind + 3, 1, assignment.score, cell)
+        if assignment.is_cheated:
+            worksheet.write(ind + 3, 1, assignment.score, red_cell)
+        else:
+            worksheet.write(ind + 3, 1, assignment.score, cell)
         worksheet.write(ind + 3, 2, assignment.student.student_id, cell)
     worksheet.set_column('C:C', 20)
     worksheet.set_column('B:B', 10)

@@ -42,6 +42,7 @@ class Assignment(models.Model):
     uploadDate = models.DateTimeField(auto_now_add=True)
     last_upload = models.BooleanField(default=True)
     score = models.FloatField(null=True, blank=True)
+    is_cheated = models.BooleanField(default=False)
 
     def __str__(self):
         return self.assignment.__str__() + '_' + self.assignment.course.__str__() + ' - ' + self.student.__str__()

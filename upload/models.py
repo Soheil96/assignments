@@ -48,3 +48,25 @@ class Assignment(models.Model):
 
     def __str__(self):
         return self.assignment.__str__() + '_' + self.assignment.course.__str__() + ' - ' + self.student.__str__()
+
+
+class Poll(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    enable = models.BooleanField(default=True)
+    text = models.TextField(max_length=250)
+
+    def __str__(self):
+        return self.course.__str__() + " - " + str(self.id)
+
+
+class PollOption(models.Model):
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
+    text = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.poll.__str__() + " - " + self.text
+
+
+class PollChoice(models.Model):
+    option = models.ForeignKey(PollOption, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)

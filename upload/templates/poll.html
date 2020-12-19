@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>{{ poll.course.name}}</title>
+		<link rel="stylesheet" type="text/css" href="{% static 'fontawesome-free-5.15.1-web/css/all.css' %}">
+		<link rel="stylesheet" type="text/css" href="{% static 'bootstrap.min.css' %}">
+		<link rel="stylesheet" type="text/css" href="{% static 'app.css' %}">
+	</head>
+	<body>
+		<div class="container mt-5">
+			<div class="row">
+				<div class="col-md-2"></div>
+				<div class="col-md-8" style="font-size: 20px">
+					<div class="pricing-card p-3 text-center py-5 mt-2">
+						<div style="text-align: right">
+							<p>	{{ poll.text }} </p>
+						</div>
+						<form method="POST">
+                			{% csrf_token %}
+							<div style="text-align: right">
+								{% for option in options %}
+									<label for="{{ option.id }}">{{ option.text }}</label>
+									<input type="radio" id="{{ option.id }}" name="poll" value="{{ option.text }}">
+									<br>
+								{% endfor %}
+							</div>
+							<label for="std_id">شماره دانشجویی:</label>
+							<input id="std_id" name="std_id" type="number" required maxlength="15" max="22899999999999" min="101000000000">
+							<br>
+							{% for message in messages %}
+								{% if req == 'POST' %}
+									<div class="alert alert-success">
+								{% else %}
+									<div class="alert alert-danger">
+								{% endif %}
+										<a class="close" href="#" data-dismiss="alert">×</a>
+										{{ message }}
+									</div>
+							{% endfor %}
+							<input type="submit" value="ثبت نظر" class="btn btn-primary pull-right" />
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+
+{% block javascripts %}
+	<script src="{% static 'jquery.min.js' %}"></script>
+	<script src="{% static 'bootstrap.min.js' %}"></script>
+{% endblock javascripts %}

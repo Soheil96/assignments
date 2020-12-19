@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 import datetime
 import pytz
 
-from .models import Assignment, Student, CourseAssignments
+from .models import Assignment, Student, CourseAssignments, Poll
 
 
 class AssignmentForm(forms.ModelForm):
@@ -32,3 +32,16 @@ class AssignmentForm(forms.ModelForm):
         if "application/pdf" not in filetype:
             raise ValidationError("باشند pdf فایل آپلود شده باید به فرمت")
         return data
+
+
+class PollForm(forms.ModelForm):
+    class Meta:
+        model = Poll
+        fields = [
+            'course',
+            'text'
+        ]
+        labels = {
+            'course': 'نام درس',
+            'text': 'متن نظرسنجی'
+        }

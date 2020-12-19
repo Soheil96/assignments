@@ -16,8 +16,8 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404, redirect
 
 from assignments import settings
-from .models import Course, Assignment, Student, CourseAssignments
-from .form import AssignmentForm
+from .models import Course, Assignment, Student, CourseAssignments, Poll, PollOption, PollChoice
+from .form import AssignmentForm, PollForm
 
 WEBSITE_URL = 'http://iaumath.pythonanywhere.com/'
 
@@ -407,3 +407,98 @@ def delete_assignment(request, course_id, ca_id):
     CA = get_object_or_404(CourseAssignments, pk=ca_id)
     CA.delete()
     return redirect('manager_by_assignment', course_id=course_id)
+
+
+@login_required()
+def manager_polls(request):
+    polls = Poll.objects.all()
+    options = PollOption.objects.all()
+    all_votes = PollChoice.objects.all()
+    count = {}
+    votes = {}
+    for poll in polls:
+        votes[poll] = len(all_votes.filter(option__poll=poll))
+        count[poll] = len(options.filter(poll=poll))
+    return render(request, 'manager_polls.html', {'polls': polls, 'count': count, 'votes': votes})
+
+
+@login_required()
+def manager_add_poll(request):
+    if request.method == 'POST':
+        form = PollForm(request.POST)
+        poll = form.save(commit=False)
+        poll.save()
+        return redirect('manager_polls')
+    return render(request, 'manager_add_poll.html', {'poll': PollForm()})
+
+
+@login_required()
+def manager_poll(request, poll_id):
+    poll = get_object_or_404(Poll, pk=poll_id)
+    options = PollOption.objects.filter(poll=poll)
+    all_votes = PollChoice.objects.all()
+    votes = {}
+    count = {}
+    for option in options:
+        votes[option] = all_votes.filter(option=option)
+        count[option] = len(votes[option])
+    link = WEBSITE_URL + 'poll/' + str(poll_id) + '/'
+    return render(request, 'manager_poll.html', {'poll': poll, 'options': options, 'votes': votes, 'link': link, 'count': count})
+
+
+@login_required()
+def manager_poll_delete(request, poll_id):
+    poll = get_object_or_404(Poll, pk=poll_id)
+    poll.delete()
+    return redirect('manager_polls')
+
+
+@login_required()
+def manager_poll_add_option(request, poll_id):
+    poll = get_object_or_404(Poll, pk=poll_id)
+    if request.method == 'POST':
+        option = PollOption(poll=poll, text=request.POST['txt'])
+        option.save()
+        return redirect('manager_poll', poll_id=poll_id)
+    return render(request, 'manager_poll_option.html', {'poll': poll})
+
+
+@login_required()
+def manager_poll_change_state(request, poll_id):
+    poll = get_object_or_404(Poll, pk=poll_id)
+    if poll.enable:
+        poll.enable = False
+    else:
+        poll.enable = True
+    poll.save()
+    return redirect('manager_poll', poll_id)
+
+
+def vote_poll(request, poll_id):
+    poll = get_object_or_404(Poll, pk=poll_id)
+    options = PollOption.objects.filter(poll=poll)
+    if request.method == 'POST':
+        if not poll.enable:
+            messages.error(request, 'زمان نظرسنجی به اتمام رسیده')
+            return redirect('vote_poll', poll_id)
+        student = Student.objects.filter(course=poll.course, student_id=request.POST['std_id'])
+        if not student:
+            messages.error(request, 'شماره دانشجویی وارد شده، در این کلاس ثبت نام نمی باشد')
+            return redirect('vote_poll', poll_id)
+        student = student.first()
+        if 'poll' not in request.POST:
+            messages.error(request, 'لطفا یکی از گزینه های بالا را انتخاب کنید')
+            return redirect('vote_poll', poll_id)
+        option = options.filter(text=request.POST['poll'])
+        if len(option) == 0:
+            messages.error(request, 'لطفا یکی از گزینه های بالا را انتخاب کنید')
+            return redirect('vote_poll', poll_id)
+        option = option.first()
+        vote = PollChoice.objects.filter(option__poll=poll, student=student)
+        if vote:
+            vote = vote.first()
+            vote.delete()
+        vote = PollChoice(student=student, option=option)
+        vote.save()
+        messages.error(request, 'نظر شما با موفقیت ثبت شد!')
+    return render(request, 'poll.html', {'poll': poll, 'options': options, 'req': request.method})

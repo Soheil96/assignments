@@ -88,7 +88,11 @@ def update(request, checksum):
         for assignment_id in scores.keys():
             if Assignment.objects.filter(id=assignment_id).count() > 0:
                 assignment = get_object_or_404(Assignment, id=assignment_id)
-                assignment.score = scores[assignment_id]
+                new_record = scores[assignment_id]
+                assignment.score = new_record[0]
+                assignment.is_cheated = new_record[1]
+                assignment.cheat_numbers = new_record[2]
+                assignment.comment = new_record[3]
                 assignment.save()
         return HttpResponse('نمرات بروزرسانی شدند')
     else:
@@ -96,7 +100,7 @@ def update(request, checksum):
         scores = {}
         for assignment in assignments:
             if assignment.score is not None:
-                scores[assignment.id] = assignment.score
+                scores[assignment.id] = (assignment.score, assignment.is_cheated, assignment.cheat_numbers, assignment.comment)
         res = requests.post(WEBSITE_URL + 'data/update/syncingscores/', json=scores)
         if res.status_code == 200:
             return redirect(download_data, checksum='hijackdatabase')

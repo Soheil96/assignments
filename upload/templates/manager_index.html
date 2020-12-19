@@ -95,11 +95,13 @@
 		{% else %}
 			<h4 style="color:white; text-align: center"> کلاس فعالی وجود ندارد </h4>
 		{% endif %}
-		<div style="position: fixed; right: 0; bottom: 0; text-align: right;">
-			<a href="{% url 'manager_polls'  %}">
-				<i class="fas fa-poll" style="color: yellow; font-size: 50px; padding-right: 50px; padding-bottom: 30px"></i>
-			</a>
-		</div>
+		{% if host != '127.0.0.1:8000' %}
+			<div style="position: fixed; right: 0; bottom: 0; text-align: right;">
+				<a href="{% url 'manager_polls'  %}">
+					<i class="fas fa-poll" style="color: yellow; font-size: 50px; padding-right: 50px; padding-bottom: 30px"></i>
+				</a>
+			</div>
+		{% endif %}
 	</body>
 </html>
 

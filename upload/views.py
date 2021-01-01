@@ -392,7 +392,7 @@ def assignment_all_scores(request, course_id, ca_id):
     assignments = Assignment.objects.filter(assignment=CA, last_upload=True)
     for ind, assignment in enumerate(assignments):
         if assignment.is_cheated:
-            worksheet.write(ind + 3, 1, assignment.score, red_cell)
+            worksheet.write(ind + 3, 1, assignment.score, cell)
         else:
             worksheet.write(ind + 3, 1, assignment.score, cell)
         worksheet.write(ind + 3, 2, assignment.student.student_id, cell)

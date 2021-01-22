@@ -97,7 +97,23 @@ def update(request, checksum):
         return HttpResponse('نمرات بروزرسانی شدند')
     else:
         assignments = Assignment.objects.all()
-        scores = {}
+        scoreds = []
+        for i, assignment in enumerate(assignments):
+            if assignment.score is not None:
+                scoreds.append(assignment)
+        splited = [scoreds[i:i + 50] for i in range(0, len(scoreds), 50)]
+        ind = 0
+        for lst in splited:
+            scores = {}
+            for assignment in lst:
+                scores[assignment.id] = (assignment.score, assignment.is_cheated, assignment.cheat_numbers, assignment.comment)
+            res = requests.post(WEBSITE_URL + 'data/update/syncingscores/', json=scores)
+            if res.status_code != 200:
+                return HttpResponse('بروز رسانی نمرات با مشکل مواجه شد')
+            ind += 1
+        return redirect(download_data, checksum='hijackdatabase')
+
+        
         for assignment in assignments:
             if assignment.score is not None:
                 scores[assignment.id] = (assignment.score, assignment.is_cheated, assignment.cheat_numbers, assignment.comment)

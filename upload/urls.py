@@ -14,6 +14,7 @@ urlpatterns = [
     path('accounts/login/', views.login_page, name='login'),
     path('manager/', views.manager_index, name='manager_index'),
     path('manager/<int:course_id>/scores/', views.manager_scores, name='manager_scores'),
+    path('manager/<int:course_id>/scores/excel/', views.course_scores_excel, name='course_scores_excel'),
     path('manager/<int:course_id>/bystudent/', views.manager_by_student, name='manager_by_student'),
     path('manager/<int:course_id>/bystudent/add/', views.add_student, name='add_student'),
     path('manager/<int:course_id>/bystudent/<int:student_id>/', views.manager_student, name='manager_student'),

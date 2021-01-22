@@ -216,7 +216,7 @@ def manager_scores(request, course_id):
             else:
                 student_scores[CA] = '-'
         scores[student] = student_scores
-    return render(request, 'manager_scores.html', {'students': students, 'CAs': CAs, 'scores': scores})
+    return render(request, 'manager_scores.html', {'students': students, 'CAs': CAs, 'scores': scores, 'course': course})
 
 
 @login_required()
@@ -522,3 +522,79 @@ def vote_poll(request, poll_id):
         vote.save()
         messages.error(request, 'نظر شما با موفقیت ثبت شد!')
     return render(request, 'poll.html', {'poll': poll, 'options': options, 'req': request.method})
+
+
+@login_required()
+def course_scores_excel(request, course_id):
+    course = get_object_or_404(Course, ID=course_id)
+    students = Student.objects.filter(course=course)
+    CAs = CourseAssignments.objects.filter(course=course)
+    scores = {}
+    for student in students:
+        assignments = Assignment.objects.filter(student=student)
+        student_scores = {}
+        for CA in CAs:
+            assignments_by_CA = assignments.filter(assignment=CA)
+            if assignments_by_CA:
+                score = -1
+                for assignment in assignments_by_CA:
+                    if assignment.score is not None:
+                        score = max(score, assignment.score)
+                if score == -1:
+                    student_scores[CA] = ' '
+                else:
+                    student_scores[CA] = score.__str__()
+            else:
+                student_scores[CA] = '-'
+        scores[student] = student_scores
+    output = BytesIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet("scores")
+    title = workbook.add_format({
+        'bold': True,
+        'font_size': 12,
+        'align': 'center',
+        'valign': 'vcenter'
+    })
+    header = workbook.add_format({
+        'bg_color': '#F7F7F7',
+        'color': 'black',
+        'align': 'center',
+        'valign': 'top',
+        'border': 1
+    })
+    cell = workbook.add_format({
+        'align': 'center',
+        'valign': 'vcenter'
+    })
+    red_cell = workbook.add_format({
+        'align': 'center',
+        'valign': 'vcenter'
+    })
+    red_cell.set_bg_color('#FFAAAA')
+    title_text = u"{0} {1}".format(ugettext("نمرات "), course.name)
+    length = 'B2:' + chr(ord('B') + len(CAs) + 3)+'2'
+    worksheet.set_row(2, 25)
+    for j in range(len(CAs) + 4):
+        worksheet.set_column(chr(ord('B')+j)+":"+chr(ord('B')+j), 20)
+    worksheet.merge_range(length, title_text, title)
+    worksheet.write(2, 1, ugettext("شماره دانشجویی"), header)
+    worksheet.write(2, len(CAs) + 2, ugettext("نمره کلاسی"), header)
+    worksheet.write(2, len(CAs) + 3, ugettext("مجموع نمرات"), header)
+    worksheet.write(2, len(CAs) + 4, ugettext("نمره نهایی"), header)
+    for j, CA in enumerate(CAs):
+        name = CA.name + "\n" + " از " + str(CA.score) + " نمره"
+        worksheet.write(2, 2 + j, ugettext(name), header)
+    for i, student in enumerate(students):
+        worksheet.write(i + 3, 1, student.student_id, cell)
+        for j, CA in enumerate(CAs):
+            if scores[student][CA] == '-':
+                worksheet.write(i + 3, j + 2, '0', red_cell)
+            else:
+                worksheet.write(i + 3, j + 2, scores[student][CA], cell)
+    workbook.close()
+    xlsx_data = output.getvalue()
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename=scores.xlsx'
+    response.write(xlsx_data)
+    return response

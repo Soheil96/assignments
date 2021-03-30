@@ -11,18 +11,30 @@ class Course(models.Model):
         return self.name
 
 
+class StudentsGroup(models.Model):
+    name = models.CharField(max_length=100)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.course.__str__() + " - " + self.name
+
+
 class Student(models.Model):
     ID = models.AutoField(primary_key=True)
     student_id = models.CharField(max_length=20)
     firstName = models.CharField(max_length=100)
     lastName = models.CharField(max_length=100)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    group = models.ForeignKey(StudentsGroup, on_delete=models.SET_NULL, default=None, null=True)
 
     class Meta:
         unique_together = (('student_id', 'course'),)
 
     def __str__(self):
         return self.student_id + ' (' + self.firstName + ' ' + self.lastName + ')'
+
+    def get_name(self):
+        return self.firstName + ' ' + self.lastName
 
 
 class CourseAssignments(models.Model):
@@ -36,8 +48,9 @@ class CourseAssignments(models.Model):
 
 
 class Assignment(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    group = models.ForeignKey(StudentsGroup, on_delete=models.CASCADE, default=None)
     assignment = models.ForeignKey(CourseAssignments, on_delete=models.CASCADE, default=None)
+    uploadedBy = models.ForeignKey(Student, on_delete=models.SET_NULL, default=None, null=True)
     file = models.FileField(upload_to='uploaded_files/')
     uploadDate = models.DateTimeField(auto_now_add=True)
     last_upload = models.BooleanField(default=True)
@@ -47,7 +60,7 @@ class Assignment(models.Model):
     comment = models.CharField(max_length=250, null=True, blank=True)
 
     def __str__(self):
-        return self.assignment.__str__() + '_' + self.assignment.course.__str__() + ' - ' + self.student.__str__()
+        return self.assignment.__str__() + '_' + self.assignment.course.__str__() + ' - ' + self.group.__str__()
 
 
 class Poll(models.Model):

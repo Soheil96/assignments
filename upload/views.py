@@ -16,7 +16,7 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404, redirect
 
 from assignments import settings
-from .models import Course, Assignment, Student, CourseAssignments, Poll, PollOption, PollChoice
+from .models import Course, Assignment, Student, CourseAssignments, Poll, PollOption, PollChoice, StudentsGroup
 from .form import AssignmentForm, PollForm
 
 WEBSITE_URL = 'http://iaumath.pythonanywhere.com/'
@@ -137,20 +137,27 @@ def course(request, course_id):
         student = Student.objects.filter(course=course, student_id=std_id)
         if not student:
             form.errors[''] = 'شماره دانشجویی وارد شده، در این کلاس ثبت نام نمی باشد'
+        elif not student.first().group:
+            form.errors[''] = 'دانشجو گروه بندی نشده است'
         if form.is_valid() and '.pdf' in request.FILES['file'].__str__().lower():
             assignment = form.save(commit=False)
             assignment.file = request.FILES['file']
+            assignment.uploadedBy = student.first()
             now = datetime.datetime.now().astimezone(pytz.timezone('Asia/Tehran')).strftime('%Y-%m-%d_%H-%M-%S.%f')[:-3]
             assignment.file.name = now + '_' + assignment.file.name
-            assignment.student = student.first()
-            old = Assignment.objects.filter(assignment=assignment.assignment, student=assignment.student, last_upload=True)
+            assignment.group = student.first().group
+            old = Assignment.objects.filter(assignment=assignment.assignment, group=assignment.group, last_upload=True)
             if old:
                 old[0].last_upload = False
                 old[0].save()
             assignment.save()
+
             file = str(assignment.file).replace('uploaded_files/', '')
             volume = int(os.stat(os.path.join(settings.MEDIA_ROOT, str(assignment.file))).st_size / 10000) / 100
-            return render(request, 'upload_result.html', {'assignment': assignment, 'file': file, 'volume': volume})
+            group = []
+            for st in Student.objects.filter(group=assignment.group):
+                group.append(st.get_name())
+            return render(request, 'upload_result.html', {'assignment': assignment, 'file': file, 'volume': volume, 'student': student.first().get_name(), 'group':group})
         else:
             if '.pdf' not in request.FILES['file'].__str__().lower() and not form.errors:
                 form.errors[' '] = "باشند pdf فایل آپلود شده باید به فرمت"
@@ -189,8 +196,8 @@ def manager_index(request):
             valid += 1
             if assignment.score is not None:
                 scored += 1
-    return render(request, 'manager_index.html', {'courses': courses, 'host': request.get_host(), 'progress': used_volume, 'percent': used_volume/4.25,
-                                                  'total': total, 'valid': valid, 'scored': scored, 'score_ratio': int(1000*scored/valid)/10})
+    return render(request, 'manager_index.html', {'courses': courses, 'host': request.get_host(), 'progress': used_volume, 'percent': used_volume/20,
+                                                  'total': total, 'valid': valid, 'scored': scored, 'score_ratio': int(1000*scored/(valid+1))/10})
 
 
 @login_required()
@@ -200,7 +207,7 @@ def manager_scores(request, course_id):
     CAs = CourseAssignments.objects.filter(course=course)
     scores = {}
     for student in students:
-        assignments = Assignment.objects.filter(student=student)
+        assignments = Assignment.objects.filter(group=student.group)
         student_scores = {}
         for CA in CAs:
             assignments_by_CA = assignments.filter(assignment=CA)
@@ -248,7 +255,7 @@ def add_student(request, course_id):
 def manager_student(request, course_id, student_id):
     course = get_object_or_404(Course, pk=course_id)
     student = get_object_or_404(Student, course=course, student_id=student_id)
-    assignments = Assignment.objects.filter(student=student, assignment__course=course).reverse()
+    assignments = Assignment.objects.filter(group=student.group, assignment__course=course).reverse()
     return render(request, 'manager_student.html', {'student': student, 'assignments': assignments, 'course': course})
 
 
@@ -320,7 +327,7 @@ def score_by_assignment(request, course_id, ca_id, assignment_id):
     score = assignment.score
     if not score:
         score = 0
-    return render(request, 'score.html', {'student': assignment.student, 'score': score, 'assignment': assignment})
+    return render(request, 'score.html', {'group': assignment.group, 'score': score, 'assignment': assignment})
 
 
 @login_required()
@@ -406,12 +413,16 @@ def assignment_all_scores(request, course_id, ca_id):
     worksheet.write(2, 1, ugettext("از " + str(CA.score) + " نمره"), header)
     worksheet.write(2, 2, ugettext("شماره دانشجویی"), header)
     assignments = Assignment.objects.filter(assignment=CA, last_upload=True)
-    for ind, assignment in enumerate(assignments):
-        if assignment.is_cheated:
-            worksheet.write(ind + 3, 1, assignment.score, cell)
-        else:
-            worksheet.write(ind + 3, 1, assignment.score, cell)
-        worksheet.write(ind + 3, 2, assignment.student.student_id, cell)
+    ind = 3
+    for assignment in assignments:
+        students = Student.objects.filter(group=assignment.group)
+        for student in students:
+            if assignment.is_cheated:
+                worksheet.write(ind, 1, assignment.score, cell)
+            else:
+                worksheet.write(ind, 1, assignment.score, cell)
+            worksheet.write(ind, 2, student.student_id, cell)
+            ind += 1
     worksheet.set_column('C:C', 20)
     worksheet.set_column('B:B', 10)
     workbook.close()
@@ -531,7 +542,7 @@ def course_scores_excel(request, course_id):
     CAs = CourseAssignments.objects.filter(course=course)
     scores = {}
     for student in students:
-        assignments = Assignment.objects.filter(student=student)
+        assignments = Assignment.objects.filter(group=student.group)
         student_scores = {}
         for CA in CAs:
             assignments_by_CA = assignments.filter(assignment=CA)

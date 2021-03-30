@@ -27,11 +27,11 @@
 				<span style="color: #ffdf7e; font-size: 18px; ">:حجم استفاده شده در سرور</span>
 			</div>
 			<div class="progress" style="position: fixed; right: 1%; top: 11%; width: 20%">
-				{% if percent <= 60 %}
+				{% if percent <= 70 %}
 					<div class="progress-bar progress-bar-striped" role="progressbar" style="width:{{ percent }}%; background-color: #20c997">
 						{{ progress }} MB
 					</div>
-				{% elif  percent <= 80 %}
+				{% elif  percent <= 85 %}
 					<div class="progress-bar progress-bar-striped" role="progressbar" style="width:{{ percent }}%; background-color: #fd7e14">
 						{{ progress }} MB
 					</div>

@@ -200,7 +200,7 @@ def manager_index(request):
     if valid > 0:
         scored_ratio = int(1000*scored/valid)/10
     return render(request, 'manager_index.html', {'courses': courses, 'host': request.get_host(), 'progress': used_volume, 'percent': used_volume/20,
-                                                  'total': total, 'valid': valid, 'scored': scored, 'score_ratio': })
+                                                  'total': total, 'valid': valid, 'scored': scored, 'score_ratio': scored_ratio})
 
 
 @login_required()

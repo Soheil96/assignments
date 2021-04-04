@@ -36,4 +36,4 @@ urlpatterns = [
     path('manager/poll/<int:poll_id>/add/', views.manager_poll_add_option, name='manager_poll_add_option'),
     path('manager/poll/<int:poll_id>/state/', views.manager_poll_change_state, name='manager_poll_change_state'),
     path('poll/<int:poll_id>/', views.vote_poll, name='vote_poll'),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+] #+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

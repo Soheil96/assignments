@@ -19,7 +19,7 @@ from assignments import settings
 from .models import Course, Assignment, Student, CourseAssignments, Poll, PollOption, PollChoice, StudentsGroup
 from .form import AssignmentForm, PollForm
 
-WEBSITE_URL = 'http://iaumath.pythonanywhere.com/'
+WEBSITE_URL = 'http://iaumath.ir/'
 
 
 @login_required()

@@ -25,7 +25,7 @@ SECRET_KEY = 'm&4^(f0$o9dwht#c@5=8cmtnq3zd$472#fi$plwe+q@9bphx+p'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['iaumath.ir']
 
 
 # Application definition
@@ -118,7 +118,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
+#STATICFILES_DIRS = [os.path.join(BASE_DIR, 'staticfiles')]
 STATIC_URL = '/static/'
+STATIC_ROOT = '/home/lifetec1/public_html/static'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = 'media/'

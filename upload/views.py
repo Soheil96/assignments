@@ -196,8 +196,11 @@ def manager_index(request):
             valid += 1
             if assignment.score is not None:
                 scored += 1
+    scored_ratio = 100
+    if valid > 0:
+        scored_ratio = int(1000*scored/valid)/10
     return render(request, 'manager_index.html', {'courses': courses, 'host': request.get_host(), 'progress': used_volume, 'percent': used_volume/20,
-                                                  'total': total, 'valid': valid, 'scored': scored, 'score_ratio': int(1000*scored/(valid+1))/10})
+                                                  'total': total, 'valid': valid, 'scored': scored, 'score_ratio': })
 
 
 @login_required()

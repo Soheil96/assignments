@@ -129,12 +129,20 @@ def index(request):
     return render(request, 'index.html', {'courses': courses})
 
 
+def find_student_by_id(st_id, course):
+    id_options = [st_id, '399' + st_id, '101' + st_id, '399101' + st_id, '228' + st_id, '399228' + st_id]
+    for sid in id_options:
+        student = Student.objects.filter(course=course, student_id=sid)
+        if student:
+            return student
+    return None
+
+
 def course(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     if request.method == 'POST':
-        std_id = request.POST['std_id']
         form = AssignmentForm(course, request.POST, request.FILES)
-        student = Student.objects.filter(course=course, student_id=std_id)
+        student = find_student_by_id(request.POST['std_id'], course)
         if not student:
             form.errors[''] = 'شماره دانشجویی وارد شده، در این کلاس ثبت نام نمی باشد'
         elif not student.first().group:
@@ -234,6 +242,25 @@ def manager_by_student(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     students = Student.objects.filter(course=course)
     return render(request, 'manager_by_student.html', {'students': students, 'course': course, 'host': request.get_host()})
+
+
+@login_required()
+def grouping(request, course_id):
+    course = get_object_or_404(Course, pk=course_id)
+    students = Student.objects.filter(course=course)
+    if request.method == 'POST':
+        for student in students:
+            gp_name = request.POST[student.student_id]
+            gp = StudentsGroup.objects.filter(course=course, name=gp_name)
+            if gp:
+                group = gp.first()
+            else:
+                group = StudentsGroup(course=course, name=gp_name)
+                group.save()
+            student.group = group
+            student.save()
+        return redirect(manager_by_student, course_id)
+    return render(request, 'manager_grouping.html', {'students': students, 'course': course})
 
 
 @login_required()

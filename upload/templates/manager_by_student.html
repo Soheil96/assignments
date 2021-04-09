@@ -13,7 +13,7 @@
 			<i class="fas fa-home" style="color: yellow; font-size: 40px; padding-top: 20px; padding-left: 30px"></i>
 		</a>
 		<div class="container mt-5">
-			<div class="row">
+			<div class="row" style="margin-bottom: 100px">
 				<div class="col-md-2"></div>
 				<div class="col-md-8">
 					<div class="pricing-card p-4 text-center py-3">
@@ -22,6 +22,7 @@
 								<td>نام خانوادگی</td>
 								<td>نام دانشجو</td>
 								<td>شماره دانشجویی</td>
+								<td>گروه</td>
 							</tr>
 							{% for student in students %}
 								<tr>
@@ -30,6 +31,11 @@
 									<td>
 										<a href="{{ student.student_id }}/"> {{ student.student_id }} </a>
 									</td>
+									{% if student.group %}
+										<td>{{ student.group.name}}</td>
+									{% else %}
+										<td> - </td>
+									{% endif %}
 								</tr>
 							{% endfor %}
 						</table>
@@ -39,6 +45,10 @@
 		</div>
 		{% if host != '127.0.0.1:8000' %}
 			<div style="position: fixed; right: 0; bottom: 0; text-align: right;">
+				<a href="{% url 'grouping' course_id=course.ID %}">
+					<i class="fas fa-people-arrows" style="color: yellow; font-size: 50px; padding-right: 0px; padding-bottom: 30px"></i>
+				</a>ُ
+				<i class="fas fa-notting" style="color: yellow; font-size: 40px; padding-right: 30px; padding-bottom: 30px"></i>
 				<a href="{% url 'add_student' course_id=course.ID %}">
 					<i class="fas fa-plus-square" style="color: yellow; font-size: 50px; padding-right: 50px; padding-bottom: 30px"></i>
 				</a>

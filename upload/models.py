@@ -16,7 +16,7 @@ class StudentsGroup(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.course.__str__() + " - " + self.name
+        return " گروه " + self.name
 
 
 class Student(models.Model):

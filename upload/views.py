@@ -365,7 +365,7 @@ def add_assignment(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     if request.method == 'POST':
         deadline = datetime.datetime.strptime(request.POST['f_time'], '%Y-%m-%dT%H:%M')
-        tehrantz = datetime.timezone(datetime.timedelta(hours=+3, minutes=30))
+        tehrantz = datetime.timezone(datetime.timedelta(hours=+4, minutes=30))
         deadline = deadline.replace(tzinfo=tehrantz)
         deadline = deadline.astimezone(pytz.utc)
         score = None
@@ -384,7 +384,7 @@ def extend_assignment(request, course_id, ca_id):
     CA = get_object_or_404(CourseAssignments, pk=ca_id)
     if request.method == 'POST':
         deadline = datetime.datetime.strptime(request.POST['f_time'], '%Y-%m-%dT%H:%M')
-        tehrantz = datetime.timezone(datetime.timedelta(hours=+3, minutes=30))
+        tehrantz = datetime.timezone(datetime.timedelta(hours=+4, minutes=30))
         deadline = deadline.replace(tzinfo=tehrantz)
         deadline = deadline.astimezone(pytz.utc)
         CA.deadline = deadline

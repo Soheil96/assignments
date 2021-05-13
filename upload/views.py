@@ -65,7 +65,7 @@ def download_data(request, checksum):
             file_path = os.path.join(settings.MEDIA_ROOT, str(assignment.file))
             if not os.path.exists(file_path):
                 res = requests.get(WEBSITE_URL+'manager/'+str(assignment.assignment.course.ID)+'/bystudent/'+
-                                   str(assignment.student.student_id)+'/download/'+str(assignment.id)+'/pdf/')
+                                   str(assignment.uploadedBy.student_id)+'/download/'+str(assignment.id)+'/pdf/')
                 if res.status_code == 200:
                     open(file_path, 'wb').write(res.content)
     else:

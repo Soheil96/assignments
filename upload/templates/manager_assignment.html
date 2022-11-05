@@ -93,9 +93,11 @@
 				<i class="fas fa-file-excel" style="color: yellow; font-size: 40px; padding-bottom: 20px"></i>
 			</a>
 			<i class="fas fa-notting" style="color: yellow; font-size: 40px; padding-right: 30px; padding-bottom: 30px"></i>
-			<a href="{% url 'delete_assignment' course_id=course.ID ca_id=CA.id %}" onclick="return confirm('آیا مطمئن هستید که این تمرین و تمام فایل های آپلود شده برای این تمرین پاک شود؟')">
-				<i class="fas fa-trash-alt" style="color: yellow; font-size: 40px; padding-right: 30px; padding-bottom: 20px"></i>
-			</a>
+			{% if host != '127.0.0.1:8000' %}
+				<a href="{% url 'delete_assignment' course_id=course.ID ca_id=CA.id %}" onclick="return confirm('آیا مطمئن هستید که این تمرین و تمام فایل های آپلود شده برای این تمرین پاک شود؟')">
+					<i class="fas fa-trash-alt" style="color: yellow; font-size: 40px; padding-right: 30px; padding-bottom: 20px"></i>
+				</a>
+			{% endif %}
 		</div>
 	</body>
 </html>

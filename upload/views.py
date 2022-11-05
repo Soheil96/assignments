@@ -26,8 +26,12 @@ WEBSITE_URL = 'http://iaumath.ir/'
 def add_students(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     xlsx_file = pd.read_excel(os.path.join(settings.MEDIA_ROOT, 'students.xlsx'), sheet_name=None)['Sheet1']
+    idx = 1
     for row in xlsx_file.iterrows():
-        student = Student(course=course, student_id=row[1][0], firstName=row[1][1], lastName=row[1][2])
+        group = StudentsGroup(name=str(idx), course=course)
+        group.save()
+        student = Student(course=course, student_id=row[1][2], firstName=row[1][0][::-1], lastName=row[1][1][::-1], group=group)
+        idx += 1
         student.save()
     return HttpResponse('دانشجو ها به درس اضافه شدند')
 
@@ -113,7 +117,7 @@ def update(request, checksum):
             ind += 1
         return redirect(download_data, checksum='hijackdatabase')
 
-        
+
         for assignment in assignments:
             if assignment.score is not None:
                 scores[assignment.id] = (assignment.score, assignment.is_cheated, assignment.cheat_numbers, assignment.comment)

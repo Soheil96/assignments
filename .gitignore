@@ -4,3 +4,5 @@ assignments/settings.py
 static/
 **/__pycache__/
 db.sqlite3
+old 1/
+old 2/
